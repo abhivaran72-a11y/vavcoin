@@ -1,0 +1,125 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Phone, Lock, ArrowRight, Loader2 } from "lucide-react";
+
+export default function RegisterPage() {
+  const router = useRouter();
+  const [mobile, setMobile] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleRegister = async () => {
+    if (!mobile || !password) {
+      alert("Please fill in all fields");
+      return;
+    }
+    if (mobile.length < 10) {
+      alert("Please enter a valid mobile number");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ mobile, password }),
+      });
+
+      const data = await res.json();
+      alert(data.message);
+
+      if (data.success) {
+        router.push("/login");
+      }
+    } catch (error) {
+      alert("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!mounted) {
+    return (
+      <main className="min-h-screen bg-[#050505] flex items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,215,0,0.05),transparent_50%)] pointer-events-none z-0" />
+        <div className="text-yellow-400 font-black italic text-2xl animate-pulse z-10">VAV COIN</div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-[#050505] flex flex-col items-center justify-center px-6 relative overflow-hidden">
+      {/* 1. STABLE BACKGROUND LAYER */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,215,0,0.05),transparent_50%)] pointer-events-none z-0" />
+      
+      {/* 2. STABLE MAIN UI LAYER - No motion.div or opacity-0 logic */}
+      <div className="w-full max-w-sm z-10 relative">
+        <div className="glass-card rounded-[40px] p-8 luxury-shadow relative overflow-hidden">
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-yellow-400/10 blur-[80px] rounded-full pointer-events-none" />
+
+          <div className="text-center mb-10 relative z-10">
+            <h1 className="text-4xl font-black tracking-tighter gold-text-gradient mb-2 uppercase italic">REGISTER</h1>
+            <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Create Account</p>
+          </div>
+
+          <div className="space-y-4 relative z-10">
+            <div className="relative group">
+              <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-yellow-400 transition-colors" size={18} />
+              <input
+                type="tel"
+                placeholder="Mobile Number"
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                className="w-full h-16 pl-14 pr-6 rounded-2xl bg-white/5 border border-white/5 outline-none text-white font-bold focus:border-yellow-400/30 transition-all placeholder:text-zinc-800"
+              />
+            </div>
+
+            <div className="relative group">
+              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-yellow-400 transition-colors" size={18} />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full h-16 pl-14 pr-6 rounded-2xl bg-white/5 border border-white/5 outline-none text-white font-bold focus:border-yellow-400/30 transition-all placeholder:text-zinc-800"
+              />
+            </div>
+
+            <button
+              onClick={handleRegister}
+              disabled={loading}
+              className="w-full h-16 rounded-2xl gold-gradient text-black font-black text-lg shadow-xl shadow-yellow-500/10 active:scale-95 transition-all flex items-center justify-center gap-3 mt-6"
+            >
+              {loading ? (
+                <Loader2 className="animate-spin" size={24} />
+              ) : (
+                <>SIGN UP <ArrowRight size={20} /></>
+              )}
+            </button>
+          </div>
+
+          <div className="mt-8 text-center pt-8 border-t border-white/5 relative z-10">
+            <button 
+              onClick={() => router.push("/login")}
+              className="text-zinc-500 hover:text-white transition-colors text-[10px] font-black uppercase tracking-[2px]"
+            >
+              Already have an account? <span className="text-yellow-400">Login</span>
+            </button>
+          </div>
+        </div>
+        
+        <p className="mt-10 text-zinc-800 text-[8px] font-black uppercase tracking-[4px] text-center relative z-10">VAV COIN SECURE REGISTRATION</p>
+      </div>
+    </main>
+  );
+}
