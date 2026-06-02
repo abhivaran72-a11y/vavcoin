@@ -91,11 +91,18 @@ export default function DailyRewardPage() {
     return `Next claim in ${hours}h ${mins}m`;
   };
 
-  if (!mounted) return (
+  if (!mounted || loading) return (
     <main className="min-h-screen bg-[#050505] flex items-center justify-center">
        <div className="text-yellow-400 font-black italic text-2xl animate-pulse">VAV COIN</div>
     </main>
   );
+
+  const safeStatus = status || {
+    currentDay: 1,
+    rewards: [5, 10, 15, 20, 25, 30, 50],
+    isCompleted: false,
+    lastClaim: null
+  };
 
   return (
     <main className="min-h-screen bg-[#050505] text-white selection:bg-yellow-400 selection:text-black font-sans relative pb-10 overflow-hidden isolate">
@@ -158,19 +165,19 @@ export default function DailyRewardPage() {
            <div className="flex items-center justify-between mb-8 relative z-10">
               <div>
                 <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Current Status</p>
-                <h3 className="text-xl font-black italic gold-text-gradient uppercase">Day {status?.isCompleted ? 7 : status?.currentDay} / 7</h3>
+                <h3 className="text-xl font-black italic gold-text-gradient uppercase">Day {safeStatus.isCompleted ? 7 : safeStatus.currentDay} / 7</h3>
               </div>
               <div className="text-right">
                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Rewards Claimed</p>
-                 <h3 className="text-xl font-black italic text-white uppercase">{status?.isCompleted ? 7 : status?.currentDay - 1} Days</h3>
+                 <h3 className="text-xl font-black italic text-white uppercase">{safeStatus.isCompleted ? 7 : safeStatus.currentDay - 1} Days</h3>
               </div>
            </div>
 
            <div className="grid grid-cols-4 sm:grid-cols-7 gap-3 relative z-10">
-              {status?.rewards.map((amt: number, idx: number) => {
+              {safeStatus.rewards.map((amt: number, idx: number) => {
                 const day = idx + 1;
-                const isClaimed = status.isCompleted || day < status.currentDay;
-                const isCurrent = !status.isCompleted && day === status.currentDay;
+                const isClaimed = safeStatus.isCompleted || day < safeStatus.currentDay;
+                const isCurrent = !safeStatus.isCompleted && day === safeStatus.currentDay;
                 
                 return (
                   <div key={day} className="flex flex-col items-center gap-2">
@@ -190,7 +197,7 @@ export default function DailyRewardPage() {
 
         {/* ACTION BUTTON */}
         <section className="mb-10 text-center">
-           {status?.isCompleted ? (
+           {safeStatus.isCompleted ? (
               <div className="bg-green-500/10 border border-green-500/20 rounded-3xl p-8 text-center">
                  <Trophy size={48} className="text-green-500 mx-auto mb-4" />
                  <h3 className="text-xl font-black uppercase italic text-green-400 mb-2">Program Completed</h3>

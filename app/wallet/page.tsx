@@ -18,6 +18,8 @@ export default function WalletPage() {
   const [deposits, setDeposits] = useState<any[]>([]);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [depositConfig, setDepositConfig] = useState<any>(null);
+  const [qrLoading, setQrLoading] = useState(true);
+  const [qrError, setQrError] = useState(false);
   const [copyToast, setCopyToast] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -32,14 +34,25 @@ export default function WalletPage() {
   };
 
   const fetchDepositConfig = async () => {
+    setQrLoading(true);
+    setQrError(false);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     try {
-      console.log("[WALLET] Calling /api/admin-v2/deposit-config");
-      const res = await fetch("/api/admin-v2/deposit-config");
+      const res = await fetch("/api/admin-v2/deposit-config", { signal: controller.signal });
       const data = await res.json();
       if (data.success) {
         setDepositConfig(data.settings);
+      } else {
+        setQrError(true);
       }
-    } catch (e) {}
+    } catch (e) {
+      setQrError(true);
+    } finally {
+      setQrLoading(false);
+      clearTimeout(timeoutId);
+    }
   };
 
   const fetchHistory = async () => {
@@ -133,15 +146,15 @@ export default function WalletPage() {
   };
 
   if (!mounted) return (
-    <main className="min-h-screen bg-[#050505] flex items-center justify-center">
+    <main className="min-h-screen bg-[#022c22] flex items-center justify-center">
        <div className="text-yellow-400 font-black italic text-2xl animate-pulse">VAV COIN</div>
     </main>
   );
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white selection:bg-yellow-400 selection:text-black overflow-hidden relative isolate">
+    <main className="min-h-screen bg-[#022c22] text-white selection:bg-yellow-400 selection:text-black overflow-hidden relative isolate">
       {/* Background layer - explicitly layered */}
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_top,rgba(255,215,0,0.1),transparent_40%)] pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_top,rgba(241,213,146,0.15),transparent_50%)] pointer-events-none z-0" />
 
       {/* TOAST SYSTEM */}
       <AnimatePresence>
@@ -152,7 +165,7 @@ export default function WalletPage() {
             exit={{ opacity: 0, y: -20 }}
             className="fixed top-24 left-1/2 -translate-x-1/2 z-[100]"
           >
-            <div className="bg-yellow-400 text-black px-4 py-2 rounded-full font-black text-[10px] uppercase tracking-widest shadow-2xl flex items-center gap-2">
+            <div className="bg-yellow-400 text-black px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-2xl flex items-center gap-2">
               <Check size={14} /> UPI ID Copied
             </div>
           </motion.div>
@@ -194,24 +207,24 @@ export default function WalletPage() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-4 luxury-shadow relative z-10">
+        <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-4 luxury-shadow relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full gold-gradient flex items-center justify-center text-black">
+            <div className="w-8 h-8 rounded-lg gold-gradient flex items-center justify-center text-black">
               <Coins size={14} />
             </div>
             <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Liquid Balance</span>
           </div>
-          <span className="text-white font-black text-xl tracking-tighter italic">₹{balance.toLocaleString("en-IN")}</span>
+          <span className="text-white font-black text-lg md:text-xl tracking-tighter italic">₹{balance.toLocaleString("en-IN")}</span>
         </div>
       </header>
 
-      <div className="relative z-10 px-6 mt-6 h-[calc(100vh-220px)] overflow-y-auto no-scrollbar pb-12 isolate">
-        <div className="flex bg-white/5 backdrop-blur-xl rounded-[24px] p-1.5 border border-white/5 shadow-2xl sticky top-0 z-20">
+      <div className="relative z-10 px-4 md:px-6 mt-6 h-[calc(100vh-220px)] overflow-y-auto no-scrollbar pb-12 isolate">
+        <div className="flex bg-white/5 backdrop-blur-xl rounded-2xl p-1.5 border border-white/5 shadow-2xl sticky top-0 z-20">
           {["DEPOSIT", "WITHDRAW", "HISTORY"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
-              className={`flex-1 py-4 rounded-[20px] text-[10px] font-black tracking-widest transition-all ${
+              className={`flex-1 py-3.5 rounded-xl text-[9px] md:text-[10px] font-black tracking-widest transition-all ${
                 activeTab === tab ? "gold-gradient text-black gold-shadow" : "text-zinc-500 hover:text-white"
               }`}
             >
@@ -220,27 +233,42 @@ export default function WalletPage() {
           ))}
         </div>
 
-        <div className="mt-10 relative z-10">
+        <div className="mt-8 md:mt-10 relative z-10">
           {activeTab === "DEPOSIT" && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center space-y-10">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center space-y-8 md:space-y-10">
               {/* QR SECTION */}
               <div className="w-full max-w-[340px] flex flex-col items-center">
-                <div className="aspect-square w-56 bg-white p-4 rounded-[32px] mb-6 shadow-2xl relative flex items-center justify-center">
-                  {!depositConfig ? (
-                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-black"></div>
+                <div className="aspect-square w-48 md:w-56 bg-white p-4 rounded-3xl mb-6 shadow-2xl relative flex items-center justify-center overflow-hidden">
+                  {qrLoading ? (
+                    <div className="flex flex-col items-center gap-2">
+                       <Loader2 className="animate-spin text-black" size={32} />
+                       <span className="text-[8px] font-black text-black uppercase tracking-widest">Loading QR...</span>
+                    </div>
+                  ) : qrError ? (
+                    <div className="flex flex-col items-center gap-3 text-center px-4">
+                       <AlertCircle className="text-red-500" size={32} />
+                       <p className="text-[9px] font-black text-black uppercase leading-tight">Failed to load QR code</p>
+                       <button 
+                         onClick={fetchDepositConfig}
+                         className="px-4 py-1.5 bg-black text-white rounded-lg text-[8px] font-black uppercase"
+                       >
+                         Retry
+                       </button>
+                    </div>
                   ) : (
                     <img 
                       src={depositConfig.qrImage} 
                       alt="Payment QR" 
                       className="w-full h-full object-contain"
+                      onError={() => setQrError(true)}
                     />
                   )}
                 </div>
-                <div className="text-center space-y-3">
-                  <p className="text-zinc-400 text-sm font-black tabular-nums tracking-tight bg-white/5 px-4 py-2 rounded-xl border border-white/5">{depositConfig?.upiId || "---"}</p>
+                <div className="text-center space-y-3 w-full">
+                  <p className="text-zinc-400 text-xs md:text-sm font-black tabular-nums tracking-tight bg-white/5 px-4 py-2.5 rounded-xl border border-white/5 truncate">{depositConfig?.upiId || "---"}</p>
                   <button 
                     onClick={() => depositConfig?.upiId && copyToClipboard(depositConfig.upiId)}
-                    className="flex items-center gap-2 bg-yellow-400 text-black px-6 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all shadow-lg shadow-yellow-400/20"
+                    className="flex items-center justify-center gap-2 bg-yellow-400 text-black px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all shadow-lg shadow-yellow-400/20 w-full"
                   >
                     <Copy size={14} /> Copy UPI ID
                   </button>
@@ -258,7 +286,7 @@ export default function WalletPage() {
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
                       placeholder="0"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-6 py-5 outline-none text-white text-xl font-black placeholder:text-zinc-900 focus:border-yellow-400/30 transition-all text-center"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-6 py-4 md:py-5 outline-none text-white text-xl font-black placeholder:text-zinc-900 focus:border-yellow-400/30 transition-all text-center"
                     />
                    </div>
                 </div>
@@ -270,7 +298,7 @@ export default function WalletPage() {
                     value={utr}
                     onChange={(e) => setUtr(e.target.value)}
                     placeholder="12-digit UTR"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 outline-none text-white text-lg font-black placeholder:text-zinc-900 focus:border-yellow-400/30 transition-all text-center"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 md:py-5 outline-none text-white text-lg font-black placeholder:text-zinc-900 focus:border-yellow-400/30 transition-all text-center"
                   />
                 </div>
                 
@@ -286,7 +314,7 @@ export default function WalletPage() {
                   <div className="flex justify-center">
                     <label
                       htmlFor="screenshot-upload"
-                      className="flex flex-col items-center justify-center w-36 h-36 bg-white/5 border-2 border-dashed border-white/10 rounded-[32px] cursor-pointer hover:border-yellow-400/30 transition-all overflow-hidden shadow-xl"
+                      className="flex flex-col items-center justify-center w-32 h-32 md:w-36 md:h-36 bg-white/5 border-2 border-dashed border-white/10 rounded-2xl cursor-pointer hover:border-yellow-400/30 transition-all overflow-hidden shadow-xl"
                     >
                       {screenshot ? (
                         <img src={screenshot} alt="Screenshot" className="w-full h-full object-cover" />
@@ -304,10 +332,10 @@ export default function WalletPage() {
                   <button
                     onClick={handleDeposit}
                     disabled={loading}
-                    className="w-full sm:w-auto sm:px-12 gold-gradient text-black font-black py-5 rounded-[24px] text-lg gold-shadow active:scale-95 transition-all uppercase tracking-widest"
+                    className="w-full gold-gradient text-black font-black py-4 md:py-5 rounded-xl text-lg gold-shadow active:scale-95 transition-all uppercase tracking-widest"
                   >
                     {loading ? (
-                      <Loader2 className="animate-spin" size={24} />
+                      <Loader2 className="animate-spin mx-auto" size={24} />
                     ) : "SUBMIT DEPOSIT"}
                   </button>
                 </div>
@@ -322,14 +350,14 @@ export default function WalletPage() {
           )}
 
           {activeTab === "WITHDRAW" && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
-              <div className="bg-red-500/5 border border-red-500/10 rounded-[40px] p-8 flex gap-6 items-start luxury-shadow backdrop-blur-sm">
-                <div className="w-12 h-12 bg-red-500/10 rounded-2xl flex items-center justify-center text-red-500 shrink-0">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 md:space-y-10">
+              <div className="bg-red-500/5 border border-red-500/10 rounded-2xl p-6 md:p-8 flex gap-4 md:gap-6 items-start luxury-shadow backdrop-blur-sm">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-red-500/10 rounded-xl flex items-center justify-center text-red-500 shrink-0">
                    <AlertCircle size={24} />
                 </div>
                 <div>
-                   <h4 className="text-red-500 text-[10px] font-black uppercase tracking-[2px] mb-2">Withdrawal Notice</h4>
-                   <p className="text-red-200/40 text-[9px] font-black uppercase leading-relaxed tracking-widest">
+                   <h4 className="text-red-500 text-[10px] font-black uppercase tracking-[2px] mb-1.5 md:mb-2">Withdrawal Notice</h4>
+                   <p className="text-red-200/40 text-[8px] md:text-[9px] font-black uppercase leading-relaxed tracking-widest">
                      Min ₹100. Verification in 24h. Check UPI ID carefully.
                    </p>
                 </div>
@@ -343,7 +371,7 @@ export default function WalletPage() {
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="₹ 0"
-                    className="w-full bg-white/5 border border-white/5 rounded-[32px] px-8 py-6 outline-none text-white text-3xl font-black placeholder:text-zinc-900 focus:border-yellow-400/30 transition-all shadow-xl text-center"
+                    className="w-full bg-white/5 border border-white/5 rounded-xl px-8 py-5 md:py-6 outline-none text-white text-2xl md:text-3xl font-black placeholder:text-zinc-900 focus:border-yellow-400/30 transition-all shadow-xl text-center"
                   />
                 </div>
                 
@@ -354,17 +382,17 @@ export default function WalletPage() {
                     value={upiId}
                     onChange={(e) => setUpiId(e.target.value)}
                     placeholder="user@upi"
-                    className="w-full bg-white/5 border border-white/5 rounded-[32px] px-8 py-6 outline-none text-white text-xl font-black placeholder:text-zinc-900 focus:border-yellow-400/30 transition-all shadow-xl text-center"
+                    className="w-full bg-white/5 border border-white/5 rounded-xl px-8 py-5 md:py-6 outline-none text-white text-lg md:text-xl font-black placeholder:text-zinc-900 focus:border-yellow-400/30 transition-all shadow-xl text-center"
                   />
                 </div>
 
                 <button
                   onClick={handleWithdraw}
                   disabled={loading}
-                  className="w-full max-w-[320px] bg-white text-black font-black py-6 rounded-[32px] text-xl active:scale-95 transition-all shadow-2xl mt-6 uppercase tracking-widest"
+                  className="w-full max-w-[320px] bg-white text-black font-black py-5 md:py-6 rounded-xl text-lg md:text-xl active:scale-95 transition-all shadow-2xl mt-6 uppercase tracking-widest"
                 >
                   {loading ? (
-                    <Loader2 className="animate-spin" size={24} />
+                    <Loader2 className="animate-spin mx-auto" size={24} />
                   ) : "REQUEST PAYOUT"}
                 </button>
               </div>
@@ -372,24 +400,24 @@ export default function WalletPage() {
           )}
 
           {activeTab === "HISTORY" && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-12 pb-10">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10 md:space-y-12 pb-10">
               <section>
-                <h3 className="text-zinc-700 text-[10px] font-black tracking-[5px] uppercase mb-8 px-4 flex items-center gap-3">
+                <h3 className="text-zinc-700 text-[10px] font-black tracking-[5px] uppercase mb-6 md:mb-8 px-4 flex items-center gap-3">
                    <div className="w-1.5 h-4 gold-gradient rounded-full" /> Deposits
                 </h3>
-                <div className="space-y-5">
+                <div className="space-y-4 md:space-y-5">
                   {deposits.map((d) => (
-                    <div key={d._id} className="glass-card rounded-[32px] p-6 flex items-center justify-between luxury-shadow border-white/5">
-                      <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 rounded-2xl bg-green-500/5 border border-green-500/10 flex items-center justify-center text-green-500">
+                    <div key={d._id} className="glass-card rounded-2xl p-5 md:p-6 flex items-center justify-between luxury-shadow border-white/5">
+                      <div className="flex items-center gap-4 md:gap-5">
+                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-green-500/5 border border-green-500/10 flex items-center justify-center text-green-500">
                           <ArrowUpCircle size={28} />
                         </div>
                         <div>
-                          <p className="text-white font-black text-xl tracking-tighter">₹{d.amount}</p>
-                          <p className="text-zinc-600 text-[9px] font-mono mt-1 uppercase opacity-60">UTR: {d.utr.slice(-8)}</p>
+                          <p className="text-white font-black text-lg md:text-xl tracking-tighter">₹{d.amount}</p>
+                          <p className="text-zinc-600 text-[9px] font-mono mt-0.5 md:mt-1 uppercase opacity-60">UTR: {d.utr.slice(-8)}</p>
                         </div>
                       </div>
-                      <div className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${
+                      <div className={`px-4 py-1.5 md:px-5 md:py-2 rounded-lg text-[8px] md:text-[9px] font-black uppercase tracking-widest ${
                         d.status === "APPROVED" ? "bg-green-500 text-black shadow-lg shadow-green-500/10" :
                         d.status === "REJECTED" ? "bg-red-500/20 text-red-500" :
                         "bg-white/5 text-zinc-600"
@@ -402,22 +430,22 @@ export default function WalletPage() {
               </section>
 
               <section>
-                <h3 className="text-zinc-700 text-[10px] font-black tracking-[5px] uppercase mb-8 px-4 flex items-center gap-3">
+                <h3 className="text-zinc-700 text-[10px] font-black tracking-[5px] uppercase mb-6 md:mb-8 px-4 flex items-center gap-3">
                    <div className="w-1.5 h-4 gold-gradient rounded-full" /> Withdrawals
                 </h3>
-                <div className="space-y-5">
+                <div className="space-y-4 md:space-y-5">
                   {withdrawals.map((w) => (
-                    <div key={w._id} className="glass-card rounded-[32px] p-6 flex items-center justify-between luxury-shadow border-white/5">
-                      <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 rounded-2xl bg-red-500/5 border border-red-500/10 flex items-center justify-center text-red-500">
+                    <div key={w._id} className="glass-card rounded-2xl p-5 md:p-6 flex items-center justify-between luxury-shadow border-white/5">
+                      <div className="flex items-center gap-4 md:gap-5">
+                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-red-500/5 border border-red-500/10 flex items-center justify-center text-red-500">
                           <ArrowDownCircle size={28} />
                         </div>
                         <div>
-                          <p className="text-white font-black text-xl tracking-tighter">₹{w.amount}</p>
-                          <p className="text-zinc-600 text-[9px] font-black mt-1 uppercase tracking-widest opacity-60 truncate max-w-[120px]">{w.upiId}</p>
+                          <p className="text-white font-black text-lg md:text-xl tracking-tighter">₹{w.amount}</p>
+                          <p className="text-zinc-600 text-[9px] font-black mt-0.5 md:mt-1 uppercase tracking-widest opacity-60 truncate max-w-[100px] md:max-w-[120px]">{w.upiId}</p>
                         </div>
                       </div>
-                      <div className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${
+                      <div className={`px-4 py-1.5 md:px-5 md:py-2 rounded-lg text-[8px] md:text-[9px] font-black uppercase tracking-widest ${
                         w.status === "PAID" ? "gold-gradient text-black gold-shadow" :
                         w.status === "APPROVED" ? "bg-green-500/10 text-green-500" :
                         w.status === "REJECTED" ? "bg-red-500/10 text-red-500" :

@@ -14,10 +14,11 @@ export async function POST(req: Request) {
 
     if (amount < 100) return NextResponse.json({ success: false, message: "Minimum deposit is ₹100" }, { status: 400 });
 
-    const existing = await Deposit.findOne({ utr });
-    if (existing) return NextResponse.json({ success: false, message: "UTR already submitted" }, { status: 400 });
+    const cleanUtr = String(utr).trim();
+    const existing = await Deposit.findOne({ utr: cleanUtr });
+    if (existing) return NextResponse.json({ success: false, message: "This UTR is already used." }, { status: 400 });
 
-    const newDeposit = await Deposit.create({ userId: decoded.id, amount, utr, screenshot });
+    const newDeposit = await Deposit.create({ userId: decoded.id, amount, utr: cleanUtr, screenshot });
     if ((global as any).io) {
       (global as any).io.emit("NEW_DEPOSIT", await Deposit.findById(newDeposit._id).populate("userId", "mobile"));
     }

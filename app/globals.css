@@ -1,59 +1,71 @@
 @import "tailwindcss";
 
 :root {
-  --background: #050505;
+  --background: #022c22; /* Rich Emerald Green */
   --foreground: #ffffff;
-  --gold-primary: #FFD700;
-  --gold-secondary: #B8860B;
-  --zinc-luxury: #0A0A0A;
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-bg: rgba(255, 255, 255, 0.03);
+  --gold-primary: #f1d592; /* Soft Metallic Gold */
+  --gold-secondary: #d4af37; /* Luxury Gold */
+  --gold-accent: #996515;
+  --emerald-light: #065f46;
+  --emerald-dark: #064e3b;
+  --glass-border: rgba(241, 213, 146, 0.2);
+  --glass-bg: rgba(6, 78, 59, 0.6);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html,
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
-  -webkit-tap-highlight-color: transparent;
-}
-
-body {
-  background-image:
-    radial-gradient(circle at top, rgba(255, 215, 0, 0.12), transparent 40%),
-    radial-gradient(circle at bottom right, rgba(255, 215, 0, 0.03), transparent 30%);
+  background-image: 
+    radial-gradient(circle at top left, rgba(241, 213, 146, 0.15), transparent 45%),
+    radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.15), transparent 45%),
+    linear-gradient(to bottom, #022c22, #012b22);
+  background-attachment: fixed;
 }
 
 .gold-gradient {
-  background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);
+  background: linear-gradient(135deg, #f1d592 0%, #d4af37 50%, #996515 100%);
 }
 
 .gold-text-gradient {
-  background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);
+  background: linear-gradient(135deg, #f1d592 0%, #ffffff 30%, #d4af37 60%, #996515 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gold-shadow {
+  box-shadow: 0 10px 40px -10px rgba(212, 175, 55, 0.4);
+}
+
+.luxury-shadow {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
 }
 
 .glass-card {
   background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
   border: 1px solid var(--glass-border);
 }
 
-.luxury-shadow {
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
 }
 
-.gold-shadow {
-  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.15);
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gold-accent);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-primary);
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -63,6 +75,11 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Base Styles */
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
 button {

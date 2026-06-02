@@ -75,16 +75,16 @@ export default function GamesLobby() {
   ];
 
   if (!mounted) return (
-    <main className="min-h-screen bg-[#050505] flex items-center justify-center">
+    <main className="min-h-screen bg-[#022c22] flex items-center justify-center">
        <div className="text-yellow-400 font-black italic text-2xl animate-pulse">VAV COIN</div>
     </main>
   );
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white selection:bg-yellow-400 selection:text-black font-sans pb-10 relative isolate overflow-x-hidden">
+    <main className="min-h-screen bg-[#022c22] text-white selection:bg-yellow-400 selection:text-black font-sans pb-10 relative isolate overflow-x-hidden">
       {/* BACKGROUND DECORATION - explicitly layered */}
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,215,0,0.1),transparent_50%)] pointer-events-none z-0" />
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_0%_100%,rgba(255,215,0,0.05),transparent_40%)] pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(241,213,146,0.15),transparent_50%)] pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_0%_100%,rgba(16,185,129,0.1),transparent_40%)] pointer-events-none z-0" />
 
       {/* MOBILE APP HEADER */}
       <header className="px-6 py-6 border-b border-white/5 backdrop-blur-2xl sticky top-0 z-50 bg-black/40 relative">
@@ -135,9 +135,9 @@ export default function GamesLobby() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-4 luxury-shadow">
+        <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-4 luxury-shadow">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full gold-gradient flex items-center justify-center text-black">
+            <div className="w-8 h-8 rounded-lg gold-gradient flex items-center justify-center text-black">
               <Coins size={14} />
             </div>
             <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Available Balance</span>
@@ -147,8 +147,8 @@ export default function GamesLobby() {
       </header>
 
       {/* MAIN CONTENT */}
-      <div className="relative z-10 max-w-lg mx-auto isolate">
-        <section className="px-6 pt-8">
+      <div className="relative z-10 max-w-lg mx-auto isolate px-4 md:px-6">
+        <section className="pt-8">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-[12px] font-black uppercase tracking-[4px] text-zinc-500 flex items-center gap-2">
               <div className="w-1.5 h-6 gold-gradient rounded-full" /> Gaming Arenas
@@ -169,16 +169,16 @@ export default function GamesLobby() {
                 <button
                   onClick={() => game.active && router.push(game.path)}
                   disabled={!game.active}
-                  className={`relative w-full glass-card rounded-[40px] p-6 flex flex-col gap-6 text-left overflow-hidden group luxury-shadow ${!game.active ? 'opacity-60 grayscale' : ''}`}
+                  className={`relative w-full glass-card rounded-3xl p-6 flex flex-col gap-6 text-left overflow-hidden group luxury-shadow ${!game.active ? 'opacity-60 grayscale' : ''}`}
                 >
                   <div className="flex items-center gap-5 relative z-10">
-                    <div className={`w-20 h-20 shrink-0 rounded-[28px] bg-gradient-to-br ${game.color} flex items-center justify-center text-4xl shadow-2xl relative overflow-hidden group-hover:scale-105 transition-transform duration-500`}>
+                    <div className={`w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-2xl bg-gradient-to-br ${game.color} flex items-center justify-center text-3xl md:text-4xl shadow-2xl relative overflow-hidden group-hover:scale-105 transition-transform duration-500`}>
                       <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                       <span className="relative z-10 drop-shadow-2xl">{game.image}</span>
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-2xl font-black tracking-tighter text-white uppercase italic">{game.title}</h4>
+                      <h4 className="text-xl md:text-2xl font-black tracking-tighter text-white uppercase italic">{game.title}</h4>
                       <p className="text-zinc-500 text-[10px] font-bold leading-tight uppercase tracking-widest opacity-60 mt-1 line-clamp-1">{game.description}</p>
                     </div>
                   </div>
@@ -195,7 +195,7 @@ export default function GamesLobby() {
                       <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest ml-1">{mounted ? (400 + Math.floor(Math.random() * 200)) : 500} Live</span>
                     </div>
 
-                    <div className={`px-5 py-2.5 rounded-xl gold-gradient text-black text-[10px] font-black uppercase tracking-[2px] flex items-center gap-2 shadow-xl shadow-yellow-500/10 group-hover:bg-white transition-all ${!game.active ? 'bg-zinc-800 text-zinc-500' : ''}`}>
+                    <div className={`px-5 py-2.5 rounded-xl gold-gradient text-black text-[9px] md:text-[10px] font-black uppercase tracking-[2px] flex items-center gap-2 shadow-xl shadow-yellow-500/10 group-hover:bg-white transition-all ${!game.active ? 'bg-zinc-800 text-zinc-500' : ''}`}>
                       {game.active ? (
                         <>Enter Arena <ChevronRight size={14} /></>
                       ) : (

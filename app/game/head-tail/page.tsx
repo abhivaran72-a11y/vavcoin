@@ -13,7 +13,7 @@ export default function HeadTailGame() {
   const [mounted, setMounted] = useState(false);
   
   // Core Game States
-  const [timeLeft, setTimeLeft] = useState(30);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [roundNumber, setRoundNumber] = useState("");
   const [coinSide, setCoinSide] = useState("H"); // "H" or "T"
   
@@ -41,10 +41,11 @@ export default function HeadTailGame() {
   // Refs for bulletproof tracking
   const lastProcessedRoundRef = useRef("");
   const isSequenceActiveRef = useRef(false);
+  const roundNumberRef = useRef("");
 
   // Derived States
   const isActionLocked = isFlipping || isShowingResult || isRoundTransition;
-  const bettingLocked = useMemo(() => timeLeft <= 5 || isActionLocked, [timeLeft, isActionLocked]);
+  const bettingLocked = useMemo(() => (timeLeft ?? 0) <= 5 || isActionLocked, [timeLeft, isActionLocked]);
 
   const headBetAmount = useMemo(() => myBets.find(b => b.choice === "HEAD")?.amount || 0, [myBets]);
   const tailBetAmount = useMemo(() => myBets.find(b => b.choice === "TAIL")?.amount || 0, [myBets]);
@@ -165,24 +166,21 @@ export default function HeadTailGame() {
         const serverRound = data.round.roundNumber;
         const serverResult = data.round.result;
 
-        // Only update myBets if not resolving
         if (!isActionLocked) {
           setMyBets(data.myBets || []);
         }
 
         // TRIGGER LOGIC:
-        // Must be T=0 AND not already processing AND this round hasn't been flipped yet.
         if (serverTime === 0 && !isSequenceActiveRef.current && serverRound !== lastProcessedRoundRef.current && serverResult) {
           triggerResultSequence(serverRound, serverResult);
         }
 
-        // Only update timer/round number if we aren't in the middle of a flip/result
-        if (!isActionLocked) {
-          // If a new round has started, reset the result status
-          if (serverRound !== roundNumber && roundNumber !== "") {
-            setRoundResult(null);
+        // Sync immediately on round change, regardless of action lock
+        if (serverRound !== roundNumberRef.current) {
+          roundNumberRef.current = serverRound;
+          if (!isActionLocked) {
+             setRoundResult(null);
           }
-          
           setTimeLeft(serverTime);
           setRoundNumber(serverRound);
           
@@ -191,13 +189,10 @@ export default function HeadTailGame() {
             fetchLatestResults();
             fetchBalance();
           }
-        } else {
-          // Keep UI stable at 0 during transition
-          setTimeLeft(0);
         }
       }
     } catch (e) {}
-  }, [fetchBalance, fetchLatestResults, isActionLocked, triggerResultSequence, roundNumber]);
+  }, [fetchBalance, fetchLatestResults, isActionLocked, triggerResultSequence]);
 
   const handlePlaceBet = async () => {
     if (!selectedSide || !betAmount) {
@@ -243,6 +238,11 @@ export default function HeadTailGame() {
     }
   };
 
+  const fetchStatusRef = useRef(fetchStatus);
+  useEffect(() => {
+    fetchStatusRef.current = fetchStatus;
+  });
+
   useEffect(() => {
     setMounted(true);
     if (!isAuthenticated()) {
@@ -251,16 +251,30 @@ export default function HeadTailGame() {
       setAuthChecked(true);
       fetchBalance();
       fetchLatestResults();
-      const interval = setInterval(fetchStatus, 1000);
+      fetchStatusRef.current(); // Initial sync
+      const interval = setInterval(() => {
+        fetchStatusRef.current();
+      }, 1000);
       return () => clearInterval(interval);
     }
+  }, [fetchBalance, fetchLatestResults, router]);
+
+  // Normal 1-second local countdown
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev === null) return null;
+        return prev > 0 ? prev - 1 : 0;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
-  if (!authChecked) return <div className="min-h-screen bg-black flex items-center justify-center text-yellow-400 font-black text-2xl italic italic">VAV COIN</div>;
+  if (!authChecked) return <div className="min-h-screen bg-[#022c22] flex items-center justify-center text-yellow-400 font-black text-2xl italic">VAV COIN</div>;
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white selection:bg-yellow-400 selection:text-black font-sans relative">
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(255,215,0,0.1),transparent_50%)] pointer-events-none" />
+    <main className="min-h-screen bg-[#022c22] text-white selection:bg-yellow-400 selection:text-black font-sans relative">
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(241,213,146,0.15),transparent_50%)] pointer-events-none" />
 
       {/* TOAST SYSTEM */}
       <AnimatePresence>
@@ -271,7 +285,7 @@ export default function HeadTailGame() {
             exit={{ opacity: 0, y: -20 }}
             className="fixed top-10 left-1/2 -translate-x-1/2 z-[200] w-[90%] max-w-sm"
           >
-            <div className={`flex items-center gap-3 p-5 rounded-[24px] border ${
+            <div className={`flex items-center gap-3 p-5 rounded-2xl border ${
               toast.type === "success" ? "bg-green-500/10 border-green-500/20 text-green-400" : "bg-red-500/10 border-red-500/20 text-red-400"
             } backdrop-blur-2xl shadow-2xl`}>
               {toast.type === "success" ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
@@ -306,7 +320,7 @@ export default function HeadTailGame() {
                    <span className={`text-8xl font-black italic ${coinSide === 'H' ? 'gold-text-gradient' : 'text-zinc-400'}`}>{coinSide}</span>
                 </motion.div>
               </div>
-              <h2 className="text-white text-7xl font-black tracking-tighter mb-4 italic leading-none uppercase">
+              <h2 className="text-white text-5xl md:text-7xl font-black tracking-tighter mb-4 italic leading-none uppercase">
                 {coinSide === "H" ? "HEAD" : "TAIL"} <br />
                 <span className="gold-text-gradient">WINS!</span>
               </h2>
@@ -374,7 +388,7 @@ export default function HeadTailGame() {
         </div>
       </header>
 
-      <div className="relative z-10 px-6 pt-6 h-[calc(100vh-180px)] overflow-y-auto no-scrollbar pb-12">
+      <div className="relative z-10 px-4 md:px-6 pt-6 h-[calc(100vh-180px)] overflow-y-auto no-scrollbar pb-12">
         
         {/* TIMER & STATUS & PLAYERS */}
         <section className="flex flex-col items-center mb-10">
@@ -385,10 +399,10 @@ export default function HeadTailGame() {
           
           <div className="relative flex flex-col items-center">
             <div className="absolute inset-0 bg-yellow-400/5 blur-[40px] rounded-full" />
-            <h1 className={`text-8xl font-black tabular-nums leading-none tracking-tighter relative z-10 ${bettingLocked ? "text-red-500 opacity-40" : "text-white"}`}>
-              00:<span className="gold-text-gradient">{timeLeft.toString().padStart(2, "0")}</span>
+            <h1 className={`text-7xl md:text-8xl font-black tabular-nums leading-none tracking-tighter relative z-10 ${bettingLocked ? "text-red-500 opacity-40" : "text-white"}`}>
+              00:<span className="gold-text-gradient">{(timeLeft ?? 0).toString().padStart(2, "0")}</span>
             </h1>
-            <div className={`mt-4 px-6 py-2 rounded-full border ${bettingLocked ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-yellow-400/5 border-yellow-400/10 text-yellow-400'} backdrop-blur-xl relative z-10`}>
+            <div className={`mt-4 px-6 py-2 rounded-2xl border ${bettingLocked ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-yellow-400/5 border-yellow-400/10 text-yellow-400'} backdrop-blur-xl relative z-10`}>
                <p className="text-[10px] font-black uppercase tracking-[3px]">
                  {isActionLocked ? "Resolving Round..." : bettingLocked ? "Bets Locked" : "Accepting Wagers"}
                </p>
@@ -398,7 +412,7 @@ export default function HeadTailGame() {
 
         {/* PREMIUM COIN AREA */}
         <section className="flex justify-center mb-12">
-          <div className="relative w-64 h-64 perspective-1000">
+          <div className="relative w-48 h-48 md:w-64 md:h-64 perspective-1000">
             <motion.div
               initial={false}
               animate={isFlipping ? {
@@ -413,25 +427,25 @@ export default function HeadTailGame() {
             >
               {/* FRONT (HEAD) */}
               <div 
-                className="absolute inset-0 rounded-full border-[12px] border-yellow-500 bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-600 flex items-center justify-center shadow-[0_0_60px_rgba(255,215,0,0.25)] overflow-hidden"
+                className="absolute inset-0 rounded-full border-[8px] md:border-[12px] border-yellow-500 bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-600 flex items-center justify-center shadow-[0_0_60px_rgba(255,215,0,0.25)] overflow-hidden"
                 style={{ backfaceVisibility: "hidden" }}
               >
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.4),transparent)]" />
-                <span className="text-black text-[140px] font-black italic select-none relative z-10 drop-shadow-2xl">H</span>
-                <div className="absolute bottom-4 text-[10px] font-black text-black/40 uppercase tracking-[4px]">VAV COIN</div>
+                <span className="text-black text-[100px] md:text-[140px] font-black italic select-none relative z-10 drop-shadow-2xl">H</span>
+                <div className="absolute bottom-4 text-[8px] md:text-[10px] font-black text-black/40 uppercase tracking-[4px]">VAV COIN</div>
               </div>
               
               {/* BACK (TAIL) */}
               <div 
-                className="absolute inset-0 rounded-full border-[12px] border-zinc-500 bg-gradient-to-br from-zinc-300 via-zinc-500 to-zinc-700 flex items-center justify-center shadow-[0_0_60px_rgba(255,255,255,0.15)] overflow-hidden"
+                className="absolute inset-0 rounded-full border-[8px] md:border-[12px] border-zinc-500 bg-gradient-to-br from-zinc-300 via-zinc-500 to-zinc-700 flex items-center justify-center shadow-[0_0_60px_rgba(255,255,255,0.15)] overflow-hidden"
                 style={{ 
                   backfaceVisibility: "hidden",
                   transform: "rotateY(180deg)"
                 }}
               >
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.3),transparent)]" />
-                <span className="text-black text-[140px] font-black italic select-none relative z-10 drop-shadow-2xl">T</span>
-                <div className="absolute bottom-4 text-[10px] font-black text-black/40 uppercase tracking-[4px]">VAV COIN</div>
+                <span className="text-black text-[100px] md:text-[140px] font-black italic select-none relative z-10 drop-shadow-2xl">T</span>
+                <div className="absolute bottom-4 text-[8px] md:text-[10px] font-black text-black/40 uppercase tracking-[4px]">VAV COIN</div>
               </div>
             </motion.div>
             
@@ -442,7 +456,7 @@ export default function HeadTailGame() {
 
         {/* POOL INFORMATION */}
         <section className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden">
+          <div className="bg-white/5 border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative overflow-hidden">
             <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">HEAD Pool</p>
             <h3 className="text-white font-black text-lg">₹{pools.head.toLocaleString("en-IN")}</h3>
             {myBets.find(b => b.choice === "HEAD") && (
@@ -453,7 +467,7 @@ export default function HeadTailGame() {
               </div>
             )}
           </div>
-          <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden">
+          <div className="bg-white/5 border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative overflow-hidden">
             <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">TAIL Pool</p>
             <h3 className="text-white font-black text-lg">₹{pools.tail.toLocaleString("en-IN")}</h3>
             {myBets.find(b => b.choice === "TAIL") && (
@@ -471,26 +485,26 @@ export default function HeadTailGame() {
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => !bettingLocked && setSelectedSide("HEAD")}
-            className={`relative h-44 rounded-[40px] transition-all border-2 flex flex-col items-center justify-center overflow-hidden luxury-shadow ${
+            className={`relative h-32 md:h-44 rounded-3xl transition-all border-2 flex flex-col items-center justify-center overflow-hidden luxury-shadow ${
               selectedSide === "HEAD" ? "gold-gradient border-transparent shadow-[0_20px_40px_rgba(255,215,0,0.2)]" : "bg-white/5 border-white/5"
             } ${bettingLocked ? "opacity-30 grayscale cursor-not-allowed" : ""}`}
           >
-            <span className={`text-6xl font-black italic mb-2 ${selectedSide === "HEAD" ? "text-black" : "gold-text-gradient"}`}>H</span>
-            <h2 className={`${selectedSide === "HEAD" ? "text-black" : "text-white"} text-lg font-black italic uppercase tracking-tighter`}>HEAD</h2>
-            <p className={`${selectedSide === "HEAD" ? "text-black/60" : "text-zinc-600"} text-[9px] font-black mt-1 uppercase tracking-widest`}>2.0X Payout</p>
+            <span className={`text-4xl md:text-6xl font-black italic mb-2 ${selectedSide === "HEAD" ? "text-black" : "gold-text-gradient"}`}>H</span>
+            <h2 className={`${selectedSide === "HEAD" ? "text-black" : "text-white"} text-sm md:text-lg font-black italic uppercase tracking-tighter`}>HEAD</h2>
+            <p className={`${selectedSide === "HEAD" ? "text-black/60" : "text-zinc-600"} text-[8px] md:text-[9px] font-black mt-1 uppercase tracking-widest`}>2.0X Payout</p>
             {selectedSide === "HEAD" && <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-black animate-ping" />}
           </motion.button>
 
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => !bettingLocked && setSelectedSide("TAIL")}
-            className={`relative h-44 rounded-[40px] transition-all border-2 flex flex-col items-center justify-center overflow-hidden luxury-shadow ${
+            className={`relative h-32 md:h-44 rounded-3xl transition-all border-2 flex flex-col items-center justify-center overflow-hidden luxury-shadow ${
               selectedSide === "TAIL" ? "gold-gradient border-transparent shadow-[0_20px_40px_rgba(255,215,0,0.2)]" : "bg-white/5 border-white/5"
             } ${bettingLocked ? "opacity-30 grayscale cursor-not-allowed" : ""}`}
           >
-            <span className={`text-6xl font-black italic mb-2 ${selectedSide === "TAIL" ? "text-black" : "gold-text-gradient"}`}>T</span>
-            <h2 className={`${selectedSide === "TAIL" ? "text-black" : "text-white"} text-lg font-black italic uppercase tracking-tighter`}>TAIL</h2>
-            <p className={`${selectedSide === "TAIL" ? "text-black/60" : "text-zinc-600"} text-[9px] font-black mt-1 uppercase tracking-widest`}>2.0X Payout</p>
+            <span className={`text-4xl md:text-6xl font-black italic mb-2 ${selectedSide === "TAIL" ? "text-black" : "gold-text-gradient"}`}>T</span>
+            <h2 className={`${selectedSide === "TAIL" ? "text-black" : "text-white"} text-sm md:text-lg font-black italic uppercase tracking-tighter`}>TAIL</h2>
+            <p className={`${selectedSide === "TAIL" ? "text-black/60" : "text-zinc-600"} text-[8px] md:text-[9px] font-black mt-1 uppercase tracking-widest`}>2.0X Payout</p>
             {selectedSide === "TAIL" && <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-black animate-ping" />}
           </motion.button>
         </section>
@@ -505,12 +519,12 @@ export default function HeadTailGame() {
               className="mb-6"
             >
               {roundResult ? (
-                <div className={`rounded-[32px] p-6 border-2 luxury-shadow overflow-hidden relative ${
+                <div className={`rounded-3xl p-6 border-2 luxury-shadow overflow-hidden relative ${
                   roundResult.win ? "bg-green-500/10 border-green-500/20" : "bg-red-500/10 border-red-500/20"
                 }`}>
                    <div className="flex items-center justify-between relative z-10">
                       <div>
-                         <h3 className={`text-2xl font-black italic uppercase leading-none ${roundResult.win ? "text-green-500" : "text-red-500"}`}>
+                         <h3 className={`text-xl md:text-2xl font-black italic uppercase leading-none ${roundResult.win ? "text-green-500" : "text-red-500"}`}>
                            {roundResult.win ? "✅ YOU WON" : "❌ YOU LOST"}
                          </h3>
                          <p className="text-zinc-500 text-[9px] font-black uppercase tracking-widest mt-2">
@@ -527,7 +541,7 @@ export default function HeadTailGame() {
                    </div>
                 </div>
               ) : (
-                <div className="bg-yellow-400/5 border border-yellow-400/20 rounded-[32px] p-6 luxury-shadow relative overflow-hidden">
+                <div className="bg-yellow-400/5 border border-yellow-400/20 rounded-3xl p-6 luxury-shadow relative overflow-hidden">
                    <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-400/10 blur-[40px] rounded-full" />
                    <div className="flex items-center justify-between relative z-10">
                       <div className="flex items-center gap-3">
@@ -557,7 +571,7 @@ export default function HeadTailGame() {
         </AnimatePresence>
 
         {/* BETTING CONTROL PANEL */}
-        <section className="glass-card rounded-[48px] p-6 mb-10 luxury-shadow relative overflow-hidden">
+        <section className="glass-card rounded-3xl p-6 mb-10 luxury-shadow relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/5 blur-[50px] rounded-full -translate-y-1/2 translate-x-1/2" />
           
           <div className="flex items-center justify-between mb-6">
@@ -570,7 +584,7 @@ export default function HeadTailGame() {
           </div>
           
           {/* COMPACT INPUT */}
-          <div className="relative mb-6 w-1/2 mx-auto">
+          <div className="relative mb-6 w-full md:w-1/2 mx-auto">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-yellow-400 font-black text-lg italic">₹</div>
             <input
               disabled={bettingLocked}
@@ -588,7 +602,7 @@ export default function HeadTailGame() {
               whileTap={{ scale: 0.98 }}
               onClick={handlePlaceBet}
               disabled={bettingLocked || loading}
-              className={`w-1/2 py-4 rounded-[24px] font-black text-lg shadow-2xl transition-all disabled:opacity-20 disabled:grayscale relative overflow-hidden group ${
+              className={`w-full md:w-1/2 py-4 rounded-2xl font-black text-lg shadow-2xl transition-all disabled:opacity-20 disabled:grayscale relative overflow-hidden group ${
                 bettingLocked ? 'bg-zinc-800 text-zinc-600 shadow-none' : 'gold-gradient text-black gold-shadow'
               }`}
             >
@@ -599,13 +613,13 @@ export default function HeadTailGame() {
             </motion.button>
           </div>
 
-          <div className="flex justify-center gap-3">
+          <div className="flex justify-center gap-2 md:gap-3 flex-wrap">
             {[5, 10, 50, 100, 500].map((amount) => (
               <motion.button
                 key={amount}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => !bettingLocked && setBetAmount(amount.toString())}
-                className={`py-4 px-6 rounded-xl flex items-center justify-center transition-all border text-[12px] font-black ${
+                className={`py-3 md:py-4 px-4 md:px-6 rounded-xl flex items-center justify-center transition-all border text-[10px] md:text-[12px] font-black ${
                   betAmount === amount.toString() ? 'bg-yellow-400 text-black border-transparent' : 'bg-white/5 border-white/5 text-white'
                 }`}
                 disabled={bettingLocked}
@@ -636,7 +650,7 @@ export default function HeadTailGame() {
                 animate={{ opacity: 1, scale: 1, rotate: 0 }}
                 transition={{ delay: index * 0.05 }}
                 key={index} 
-                className={`flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center font-black text-lg border-2 luxury-shadow transition-all ${
+                className={`flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center font-black text-lg border-2 luxury-shadow transition-all ${
                   item.result === "HEAD" ? "gold-gradient border-transparent text-black" : "bg-white/5 border-white/5 text-zinc-500"
                 }`}
               >
@@ -647,7 +661,7 @@ export default function HeadTailGame() {
         </section>
 
         {/* SOCIAL PROOF */}
-        <section className="bg-white/5 border border-white/5 rounded-[32px] p-6 mb-12 flex items-center justify-between backdrop-blur-sm">
+        <section className="bg-white/5 border border-white/5 rounded-3xl p-6 mb-12 flex items-center justify-between backdrop-blur-sm">
            <div className="flex items-center gap-3">
               <div className="flex -space-x-2">
                  {[1,2,3].map(i => (

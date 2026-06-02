@@ -54,24 +54,24 @@ export default function EntryPage() {
 
   if (!mounted) {
     return (
-      <main className="min-h-screen bg-[#050505] flex items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,215,0,0.05),transparent_50%)] pointer-events-none z-0" />
+      <main className="min-h-screen bg-[#022c22] flex items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(241,213,146,0.1),transparent_50%)] pointer-events-none z-0" />
         <div className="text-yellow-400 font-black italic text-2xl animate-pulse z-10">VAV COIN</div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#050505] flex flex-col items-center justify-center px-6 relative overflow-hidden">
+    <main className="min-h-screen bg-[#022c22] flex flex-col items-center justify-center px-6 relative overflow-hidden">
       {/* 1. STABLE BACKGROUND DECORATION */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,215,0,0.05),transparent_50%)] pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(241,213,146,0.1),transparent_50%)] pointer-events-none z-0" />
       
       {/* 2. STABLE UI LAYER - No motion.div or opacity-0 logic */}
       <div className="w-full max-w-sm z-10 relative">
         <div className="w-full">
-          <div className="glass-card rounded-[40px] p-8 luxury-shadow relative">
+          <div className="glass-card rounded-3xl p-8 luxury-shadow relative">
             <div className="text-center mb-10">
-              <h1 className="text-4xl font-black tracking-tighter gold-text-gradient mb-2 uppercase">LOGIN</h1>
+              <h1 className="text-4xl font-black tracking-tighter gold-text-gradient mb-2 uppercase italic">LOGIN</h1>
               <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Access your account</p>
             </div>
 
@@ -83,7 +83,7 @@ export default function EntryPage() {
                   placeholder="Mobile Number"
                   value={mobile}
                   onChange={(e) => setMobile(e.target.value)}
-                  className="w-full h-16 pl-14 pr-6 rounded-2xl bg-white/5 border border-white/5 outline-none text-white font-bold focus:border-yellow-400/30 transition-all placeholder:text-zinc-800"
+                  className="w-full h-16 pl-14 pr-6 rounded-xl bg-white/5 border border-white/5 outline-none text-white font-bold focus:border-yellow-400/30 transition-all placeholder:text-zinc-800"
                 />
               </div>
 
@@ -94,14 +94,14 @@ export default function EntryPage() {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-16 pl-14 pr-6 rounded-2xl bg-white/5 border border-white/5 outline-none text-white font-bold focus:border-yellow-400/30 transition-all placeholder:text-zinc-800"
+                  className="w-full h-16 pl-14 pr-6 rounded-xl bg-white/5 border border-white/5 outline-none text-white font-bold focus:border-yellow-400/30 transition-all placeholder:text-zinc-800"
                 />
               </div>
 
               <button
                 onClick={handleLogin}
                 disabled={loading}
-                className="w-full h-16 rounded-2xl gold-gradient text-black font-black text-lg shadow-xl shadow-yellow-500/10 active:scale-95 transition-all flex items-center justify-center gap-3 mt-6"
+                className="w-full h-16 rounded-xl gold-gradient text-black font-black text-lg shadow-xl shadow-yellow-500/10 active:scale-95 transition-all flex items-center justify-center gap-3 mt-6 uppercase tracking-widest"
               >
                 {loading ? (
                   <Loader2 className="animate-spin" size={24} />
