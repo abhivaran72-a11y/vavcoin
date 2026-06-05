@@ -102,19 +102,19 @@ export default function MatkaManagement() {
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto pb-12">
       {/* HEADER STATS */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         {[
           { label: "Matka Players", val: stats.totalPlayers, icon: Users, color: "bg-emerald-50 text-emerald-600" },
           { label: "Total Matka Bets", val: stats.totalBets, icon: Gamepad2, color: "bg-blue-50 text-blue-600" },
-          { label: "Matka Lifetime Pool", val: `₹${stats.totalPool.toLocaleString()}`, icon: Coins, color: "bg-yellow-50 text-yellow-600" },
-          { label: "Matka Lifetime Commission", val: `₹${stats.commissions.lifetime.toLocaleString()}`, icon: Percent, icon2: PieChart, color: "bg-purple-50 text-purple-600" },
+          { label: "Lifetime Pool", val: `₹${stats.totalPool.toLocaleString()}`, icon: Coins, color: "bg-yellow-50 text-yellow-600" },
+          { label: "Lifetime Comm", val: `₹${stats.commissions.lifetime.toLocaleString()}`, icon: Percent, icon2: PieChart, color: "bg-purple-50 text-purple-600" },
         ].map((card) => (
-          <div key={card.label} className="bg-white p-6 rounded-[4px] border border-zinc-200 shadow-sm">
-            <div className={`w-10 h-10 rounded-[4px] ${card.color} flex items-center justify-center mb-4`}>
-              <card.icon size={20} />
+          <div key={card.label} className="bg-white p-4 lg:p-6 rounded-[4px] border border-zinc-200 shadow-sm">
+            <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-[4px] ${card.color} flex items-center justify-center mb-3 lg:mb-4`}>
+              <card.icon size={18} />
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">{card.label}</p>
-            <h3 className="text-2xl font-bold text-black tabular-nums">{card.val}</h3>
+            <p className="text-[9px] lg:text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">{card.label}</p>
+            <h3 className="text-lg lg:text-2xl font-bold text-black tabular-nums">{card.val}</h3>
           </div>
         ))}
       </section>
@@ -122,32 +122,32 @@ export default function MatkaManagement() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* LIVE ROUND MONITOR */}
         <div className="lg:col-span-8 space-y-6">
-          <section className="bg-white rounded-[4px] border border-zinc-200 p-8 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-5">
+          <section className="bg-white rounded-[4px] border border-zinc-200 p-4 sm:p-8 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-5 hidden sm:block">
                <Gamepad2 size={120} />
             </div>
             
-            <div className="flex items-center justify-between mb-10 relative z-10">
+            <div className="flex items-center justify-between mb-8 sm:mb-10 relative z-10">
               <div>
-                <h3 className="text-xl font-bold text-black flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse" />
+                <h3 className="text-lg sm:text-xl font-bold text-black flex items-center gap-2 sm:gap-3">
+                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-emerald-500 rounded-full animate-pulse" />
                   Live Round Monitor
                 </h3>
-                <p className="text-zinc-400 font-semibold text-xs mt-1 uppercase tracking-wider">RD #{liveRound?.round.roundNumber}</p>
+                <p className="text-zinc-400 font-semibold text-[10px] sm:text-xs mt-1 uppercase tracking-wider">RD #{liveRound?.round.roundNumber}</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Time Remaining</p>
-                <div className={`text-3xl font-bold tabular-nums ${liveRound?.secondsLeft <= 5 ? "text-red-500" : "text-black"}`}>
+                <p className="text-[9px] sm:text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Remaining</p>
+                <div className={`text-2xl sm:text-3xl font-bold tabular-nums ${liveRound?.secondsLeft <= 5 ? "text-red-500" : "text-black"}`}>
                   00:{liveRound?.secondsLeft?.toString().padStart(2, "0")}
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 lg:gap-4 mb-6 sm:mb-8">
               {[1, 2, 3, 4, 5].map((num) => (
-                <div key={num} className="p-6 bg-zinc-50 rounded-[4px] border border-zinc-100 flex flex-col items-center group hover:border-emerald-500 transition-colors">
-                  <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2 text-center">NUMBER {num}</p>
-                  <p className="text-2xl font-bold text-black tabular-nums mb-3">₹{liveRound?.round.totalAmounts[num].toLocaleString() || 0}</p>
+                <div key={num} className="p-4 sm:p-6 bg-zinc-50 rounded-[4px] border border-zinc-100 flex flex-col items-center group hover:border-emerald-500 transition-colors">
+                  <p className="text-[9px] sm:text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2 text-center">NUMBER {num}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-black tabular-nums mb-3">₹{liveRound?.round.totalAmounts[num].toLocaleString() || 0}</p>
                   <div className="w-full h-1.5 bg-zinc-200 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-emerald-500 transition-all duration-500" 
@@ -158,34 +158,34 @@ export default function MatkaManagement() {
               ))}
             </div>
 
-            <div className="flex items-center justify-between p-6 bg-black rounded-[4px] text-white">
-               <div>
-                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">Current Prize Pool</p>
-                  <p className="text-3xl font-bold tabular-nums">₹{matkaPool.toLocaleString()}</p>
+            <div className="flex flex-col sm:flex-row items-center justify-between p-4 sm:p-6 bg-black rounded-[4px] text-white gap-4">
+               <div className="text-center sm:text-left">
+                  <p className="text-[9px] sm:text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-1">Current Prize Pool</p>
+                  <p className="text-2xl sm:text-3xl font-bold tabular-nums">₹{matkaPool.toLocaleString()}</p>
                </div>
-               <div className="text-right">
-                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-2">Current Prediction</p>
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-black font-black uppercase text-xs rounded-[2px] shadow-lg shadow-emerald-500/20">
-                     <TrendingUp size={14} /> Winner: {getPredictedWinner()}
+               <div className="text-center sm:text-right w-full sm:w-auto">
+                  <p className="text-[9px] sm:text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-2">Current Prediction</p>
+                  <div className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500 text-black font-black uppercase text-xs rounded-[2px] shadow-lg shadow-emerald-500/20 w-full sm:w-auto">
+                     <TrendingUp size={14} /> Win: {getPredictedWinner()}
                   </div>
                </div>
             </div>
           </section>
 
           {/* COMMISSION TRACKER */}
-          <section className="bg-white rounded-[4px] border border-zinc-200 p-8 shadow-sm">
-             <h3 className="text-lg font-bold text-black mb-8 flex items-center gap-2 uppercase tracking-wider">
-                <Percent size={20} className="text-purple-500" /> Revenue & Commissions
+          <section className="bg-white rounded-[4px] border border-zinc-200 p-6 sm:p-8 shadow-sm">
+             <h3 className="text-base sm:text-lg font-bold text-black mb-6 sm:mb-8 flex items-center gap-2 uppercase tracking-wider">
+                <Percent size={18} className="text-purple-500" /> Revenue & Commissions
              </h3>
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
                 {[
                   { label: "Today's Commission", val: stats.commissions.today, color: "text-emerald-600" },
                   { label: "Weekly Commission", val: stats.commissions.weekly, color: "text-blue-600" },
                   { label: "Lifetime Commission", val: stats.commissions.lifetime, color: "text-purple-600" },
                 ].map(row => (
-                  <div key={row.label} className="p-6 bg-zinc-50 rounded-[4px] border border-zinc-100 border-l-4 border-l-black">
-                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">{row.label}</p>
-                    <p className={`text-2xl font-bold tabular-nums ${row.color}`}>₹{row.val.toLocaleString()}</p>
+                  <div key={row.label} className="p-4 sm:p-6 bg-zinc-50 rounded-[4px] border border-zinc-100 border-l-4 border-l-black">
+                    <p className="text-[9px] sm:text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">{row.label}</p>
+                    <p className={`text-xl sm:text-2xl font-bold tabular-nums ${row.color}`}>₹{row.val.toLocaleString()}</p>
                   </div>
                 ))}
              </div>
@@ -194,8 +194,8 @@ export default function MatkaManagement() {
 
         {/* RECENT MATKA BETS */}
         <div className="lg:col-span-4 h-full">
-          <section className="bg-white rounded-[4px] border border-zinc-200 shadow-sm flex flex-col h-[600px] lg:h-full overflow-hidden">
-            <div className="p-6 border-b border-zinc-100 bg-zinc-50">
+          <section className="bg-white rounded-[4px] border border-zinc-200 shadow-sm flex flex-col h-[500px] lg:h-full overflow-hidden">
+            <div className="p-5 sm:p-6 border-b border-zinc-100 bg-zinc-50">
               <h3 className="text-sm font-bold text-black flex items-center gap-2 uppercase tracking-wider">
                 Live Matka Bets
               </h3>
@@ -212,19 +212,19 @@ export default function MatkaManagement() {
                       key={bet._id || i}
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className="p-4 bg-white border border-zinc-100 rounded-[4px] flex items-center justify-between hover:border-emerald-200 transition-all hover:bg-emerald-50/10 group"
+                      className="p-3 sm:p-4 bg-white border border-zinc-100 rounded-[4px] flex items-center justify-between hover:border-emerald-200 transition-all hover:bg-emerald-50/10 group"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-[4px] bg-emerald-500 text-white flex items-center justify-center font-bold text-lg italic shadow-lg shadow-emerald-500/10">
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[4px] bg-emerald-500 text-white flex items-center justify-center font-bold text-base sm:text-lg italic shadow-lg shadow-emerald-500/10">
                           {bet.choice}
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-black tabular-nums">₹{bet.amount.toLocaleString()}</p>
-                          <p className="text-[9px] font-semibold text-zinc-400 uppercase tracking-wider">RD #{bet.roundId.slice(-6)}</p>
+                          <p className="text-xs sm:text-sm font-bold text-black tabular-nums">₹{bet.amount.toLocaleString()}</p>
+                          <p className="text-[8px] sm:text-[9px] font-semibold text-zinc-400 uppercase tracking-wider">RD #{bet.roundId.slice(-6)}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                         <div className="px-2 py-0.5 bg-zinc-100 rounded-[2px] text-[8px] font-bold text-zinc-500 uppercase mb-1">Commission</div>
+                         <div className="px-1.5 py-0.5 bg-zinc-100 rounded-[2px] text-[7px] sm:text-[8px] font-bold text-zinc-500 uppercase mb-1">Comm</div>
                          <p className="text-xs font-bold text-emerald-600 tabular-nums">₹{bet.commission.toLocaleString()}</p>
                       </div>
                     </motion.div>

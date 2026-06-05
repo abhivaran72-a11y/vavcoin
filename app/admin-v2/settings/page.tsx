@@ -145,12 +145,12 @@ export default function SettingsManagement() {
     <div className="max-w-3xl mx-auto space-y-6 pb-20">
       {/* DEPOSIT CONFIGURATION */}
       <form onSubmit={handleDepositUpdate} className="space-y-6">
-        <section className="bg-white rounded-[4px] p-6 border border-zinc-200 shadow-sm">
+        <section className="bg-white rounded-[4px] p-4 sm:p-6 border border-zinc-200 shadow-sm">
            <h3 className="text-sm font-bold text-black uppercase tracking-wider flex items-center gap-2 mb-6">
              <QrCode className="text-purple-600" size={18} /> Deposit Configuration
            </h3>
            
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-0.5">Payment UPI ID</label>
@@ -184,13 +184,13 @@ export default function SettingsManagement() {
               <div className="flex flex-col items-center justify-center border border-zinc-100 bg-zinc-50/50 rounded-[4px] p-4">
                  <p className="text-[9px] font-black text-zinc-400 uppercase mb-3">Live Preview</p>
                  {depositConfig.qrImage ? (
-                   <img src={depositConfig.qrImage} alt="QR Preview" className="w-32 h-32 object-contain bg-white p-2 border border-zinc-200 rounded-[4px]" />
+                   <img src={depositConfig.qrImage} alt="QR Preview" className="w-28 h-28 sm:w-32 sm:h-32 object-contain bg-white p-2 border border-zinc-200 rounded-[4px]" />
                  ) : (
-                   <div className="w-32 h-32 bg-zinc-100 flex items-center justify-center rounded-[4px] text-zinc-300">
+                   <div className="w-28 h-28 sm:w-32 sm:h-32 bg-zinc-100 flex items-center justify-center rounded-[4px] text-zinc-300">
                      <ImageIcon size={32} />
                    </div>
                  )}
-                 <p className="mt-3 text-[10px] font-bold text-black tabular-nums tracking-tight">{depositConfig.upiId || "No UPI ID set"}</p>
+                 <p className="mt-3 text-[10px] font-bold text-black tabular-nums tracking-tight text-center break-all">{depositConfig.upiId || "No UPI ID set"}</p>
               </div>
            </div>
 
@@ -211,8 +211,8 @@ export default function SettingsManagement() {
       </form>
 
       <form onSubmit={handleMatkaUpdate} className="space-y-6">
-        <section className="bg-white rounded-[4px] p-8 border border-zinc-200 shadow-sm relative overflow-hidden">
-           <div className="absolute top-0 right-0 p-4 opacity-5">
+        <section className="bg-white rounded-[4px] p-6 sm:p-8 border border-zinc-200 shadow-sm relative overflow-hidden">
+           <div className="absolute top-0 right-0 p-4 opacity-5 hidden sm:block">
               <Gamepad2 size={100} className="text-emerald-500" />
            </div>
 
@@ -232,7 +232,7 @@ export default function SettingsManagement() {
               </button>
            </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 mb-6">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-0.5">Matka Min Bet (₹)</label>
                 <input 
@@ -252,7 +252,7 @@ export default function SettingsManagement() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-0.5">Round Timer (Seconds)</label>
+                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-0.5">Round Timer (Sec)</label>
                 <input 
                   type="number"
                   value={matkaSettings.timerSeconds}
@@ -261,7 +261,7 @@ export default function SettingsManagement() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-0.5">Matka Commission (%)</label>
+                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-0.5">Matka Comm (%)</label>
                 <div className="relative">
                   <input 
                     type="number"
@@ -320,7 +320,7 @@ export default function SettingsManagement() {
            <h3 className="text-sm font-bold text-black uppercase tracking-wider flex items-center gap-2 mb-6">
              <Coins className="text-yellow-600" size={18} /> Bet Limits
            </h3>
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-0.5">Min Bet (₹)</label>
                 <input 

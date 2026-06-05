@@ -208,20 +208,20 @@ export default function AdminV2Dashboard() {
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto pb-12">
       {/* STATS GRID */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+      <section className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 lg:gap-4">
         {cards.map((card, i) => (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.02 }}
             key={card.label}
-            className="bg-white p-5 rounded-[4px] border border-zinc-200 shadow-sm hover:border-black transition-all group"
+            className="bg-white p-4 lg:p-5 rounded-[4px] border border-zinc-200 shadow-sm hover:border-black transition-all group"
           >
-            <div className={`w-8 h-8 rounded-[4px] ${card.color} flex items-center justify-center mb-3`}>
+            <div className={`w-8 h-8 rounded-[4px] ${card.color} flex items-center justify-center mb-2 lg:mb-3`}>
               <card.icon size={16} />
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">{card.label}</p>
-            <h3 className="text-xl font-bold text-black tabular-nums">{card.val}</h3>
+            <p className="text-[9px] lg:text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">{card.label}</p>
+            <h3 className="text-lg lg:text-xl font-bold text-black tabular-nums">{card.val}</h3>
           </motion.div>
         ))}
       </section>
@@ -229,45 +229,45 @@ export default function AdminV2Dashboard() {
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
         {/* LIVE ROUND MONITOR */}
         <section className="xl:col-span-8 space-y-6">
-          <div className="bg-white rounded-[4px] border border-zinc-200 p-6 shadow-sm">
+          <div className="bg-white rounded-[4px] border border-zinc-200 p-4 lg:p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-lg font-bold text-black flex items-center gap-2">
+                <h3 className="text-base lg:text-lg font-bold text-black flex items-center gap-2">
                   <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                   Live Round Monitor
                 </h3>
-                <p className="text-zinc-400 font-semibold text-xs mt-1 uppercase tracking-wider">Round ID: {liveRound?.round.roundNumber}</p>
+                <p className="text-zinc-400 font-semibold text-[10px] lg:text-xs mt-1 uppercase tracking-wider">Round ID: {liveRound?.round.roundNumber}</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-0.5">Countdown</p>
-                <div className={`text-2xl font-bold tabular-nums ${liveRound?.secondsLeft <= 5 ? "text-red-500" : "text-black"}`}>
+                <p className="text-[9px] lg:text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-0.5">Countdown</p>
+                <div className={`text-xl lg:text-2xl font-bold tabular-nums ${liveRound?.secondsLeft <= 5 ? "text-red-500" : "text-black"}`}>
                   00:{liveRound?.secondsLeft?.toString().padStart(2, "0")}
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-6 bg-zinc-50 rounded-[4px] border border-zinc-100 group">
-                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">HEAD TOTAL</p>
-                <p className="text-2xl font-bold text-black tabular-nums">₹{liveRound?.round.totalHeadAmount.toLocaleString()}</p>
-                <div className="mt-4 h-1.5 bg-zinc-200 rounded-full overflow-hidden">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4">
+              <div className="p-4 lg:p-6 bg-zinc-50 rounded-[4px] border border-zinc-100 group">
+                <p className="text-[9px] lg:text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">HEAD TOTAL</p>
+                <p className="text-xl lg:text-2xl font-bold text-black tabular-nums">₹{liveRound?.round.totalHeadAmount.toLocaleString()}</p>
+                <div className="mt-3 lg:mt-4 h-1.5 bg-zinc-200 rounded-full overflow-hidden">
                    <div className="h-full bg-yellow-500 transition-all duration-500" style={{ width: `${(liveRound?.round.totalHeadAmount / (totalPool || 1)) * 100}%` }} />
                 </div>
               </div>
 
-              <div className="p-6 bg-zinc-50 rounded-[4px] border border-zinc-100 group">
-                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">TAIL TOTAL</p>
-                <p className="text-2xl font-bold text-black tabular-nums">₹{liveRound?.round.totalTailAmount.toLocaleString()}</p>
-                <div className="mt-4 h-1.5 bg-zinc-200 rounded-full overflow-hidden">
+              <div className="p-4 lg:p-6 bg-zinc-50 rounded-[4px] border border-zinc-100 group">
+                <p className="text-[9px] lg:text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">TAIL TOTAL</p>
+                <p className="text-xl lg:text-2xl font-bold text-black tabular-nums">₹{liveRound?.round.totalTailAmount.toLocaleString()}</p>
+                <div className="mt-3 lg:mt-4 h-1.5 bg-zinc-200 rounded-full overflow-hidden">
                    <div className="h-full bg-black transition-all duration-500" style={{ width: `${(liveRound?.round.totalTailAmount / (totalPool || 1)) * 100}%` }} />
                 </div>
               </div>
 
-              <div className="p-6 bg-black rounded-[4px] text-white group">
-                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">TOTAL POOL</p>
-                <p className="text-2xl font-bold tabular-nums">₹{totalPool.toLocaleString()}</p>
-                <div className="mt-4 flex items-center gap-2">
-                  <div className="px-2 py-0.5 bg-yellow-500 text-black rounded-[2px] text-[9px] font-bold uppercase">
+              <div className="p-4 lg:p-6 bg-black rounded-[4px] text-white group">
+                <p className="text-[9px] lg:text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">TOTAL POOL</p>
+                <p className="text-xl lg:text-2xl font-bold tabular-nums">₹{totalPool.toLocaleString()}</p>
+                <div className="mt-3 lg:mt-4 flex items-center gap-2">
+                  <div className="px-2 py-0.5 bg-yellow-500 text-black rounded-[2px] text-[8px] lg:text-[9px] font-bold uppercase">
                     Prediction: {predictedWinner}
                   </div>
                 </div>
@@ -276,42 +276,42 @@ export default function AdminV2Dashboard() {
                 </div>
 
                 {/* MATKA LIVE MONITOR */}
-                <div className="bg-white rounded-[4px] border border-zinc-200 p-6 shadow-sm">
+                <div className="bg-white rounded-[4px] border border-zinc-200 p-4 lg:p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
                 <div>
-                <h3 className="text-lg font-bold text-black flex items-center gap-2">
+                <h3 className="text-base lg:text-lg font-bold text-black flex items-center gap-2">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                   Matka Live Monitor
                 </h3>
-                <p className="text-zinc-400 font-semibold text-xs mt-1 uppercase tracking-wider">Round ID: {liveRoundMatka?.round.roundNumber}</p>
+                <p className="text-zinc-400 font-semibold text-[10px] lg:text-xs mt-1 uppercase tracking-wider">Round ID: {liveRoundMatka?.round.roundNumber}</p>
                 </div>
                 <div className="text-right">
-                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-0.5">Countdown</p>
-                <div className={`text-2xl font-bold tabular-nums ${liveRoundMatka?.secondsLeft <= 5 ? "text-red-500" : "text-black"}`}>
+                <p className="text-[9px] lg:text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-0.5">Countdown</p>
+                <div className={`text-xl lg:text-2xl font-bold tabular-nums ${liveRoundMatka?.secondsLeft <= 5 ? "text-red-500" : "text-black"}`}>
                   00:{liveRoundMatka?.secondsLeft?.toString().padStart(2, "0")}
                 </div>
                 </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 lg:gap-4">
                 {[1, 2, 3, 4, 5].map((num) => (
-                <div key={num} className="p-4 bg-zinc-50 rounded-[4px] border border-zinc-100">
-                  <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">{num} &rarr; ₹Amount</p>
-                  <p className="text-lg font-bold text-black tabular-nums">₹{liveRoundMatka?.round.totalAmounts[num].toLocaleString() || 0}</p>
+                <div key={num} className="p-3 lg:p-4 bg-zinc-50 rounded-[4px] border border-zinc-100">
+                  <p className="text-[9px] lg:text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">{num} &rarr; ₹Amt</p>
+                  <p className="text-base lg:text-lg font-bold text-black tabular-nums">₹{liveRoundMatka?.round.totalAmounts[num].toLocaleString() || 0}</p>
                   <div className="mt-2 h-1 bg-zinc-200 rounded-full overflow-hidden">
                     <div className="h-full bg-emerald-500 transition-all duration-500" style={{ width: `${(liveRoundMatka?.round.totalAmounts[num] / (matkaPool || 1)) * 100}%` }} />
                   </div>
                 </div>
                 ))}
 
-                <div className="p-4 bg-black rounded-[4px] text-white">
-                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">TOTAL POOL</p>
-                <p className="text-lg font-bold tabular-nums">₹{matkaPool.toLocaleString()}</p>
+                <div className="p-3 lg:p-4 bg-black rounded-[4px] text-white">
+                <p className="text-[9px] lg:text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">TOTAL POOL</p>
+                <p className="text-base lg:text-lg font-bold tabular-nums">₹{matkaPool.toLocaleString()}</p>
                 <div className="mt-2 flex flex-col gap-1">
-                  <div className="px-1.5 py-0.5 bg-emerald-500 text-black rounded-[2px] text-[8px] font-bold uppercase truncate">
-                    Winner: {getPredictedMatkaWinner()}
+                  <div className="px-1.5 py-0.5 bg-emerald-500 text-black rounded-[2px] text-[7px] lg:text-[8px] font-bold uppercase truncate">
+                    Win: {getPredictedMatkaWinner()}
                   </div>
-                  <div className="text-[8px] font-bold text-zinc-400 uppercase">
+                  <div className="text-[7px] lg:text-[8px] font-bold text-zinc-400 uppercase">
                     Comm: ₹{liveRoundMatka?.round.commissionEarned?.toLocaleString() || 0}
                   </div>
                 </div>

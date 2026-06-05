@@ -64,7 +64,7 @@ export default function UsersManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="relative w-full max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={16} />
           <input 
@@ -77,65 +77,122 @@ export default function UsersManagement() {
         </div>
         <button 
           onClick={fetchUsers}
-          className="h-10 px-6 bg-black text-white rounded-[4px] text-sm font-bold flex items-center gap-2"
+          className="w-full sm:w-auto h-10 px-6 bg-black text-white rounded-[4px] text-sm font-bold flex items-center justify-center gap-2"
         >
           {loading ? <Loader2 className="animate-spin" size={16} /> : "Refresh Users"}
         </button>
       </div>
 
       <div className="bg-white rounded-[4px] border border-zinc-200 overflow-hidden shadow-sm">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-zinc-50 border-b border-zinc-200">
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">User / Mobile</th>
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">Balance</th>
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">Stats (W/L)</th>
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">Joined Date</th>
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-100">
-            {filteredUsers.map((u) => (
-              <tr key={u._id} className="hover:bg-zinc-50/50 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-zinc-100 rounded-[4px] flex items-center justify-center font-bold text-[10px]">
-                      {u.mobile.slice(-2)}
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-black tabular-nums">{u.mobile}</p>
-                      <p className="text-[9px] font-bold text-zinc-400 uppercase">UID: {u._id.slice(-8)}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 font-bold text-black text-sm tabular-nums">₹{u.balance.toLocaleString()}</td>
-                <td className="px-6 py-4">
-                   <div className="flex gap-1.5">
-                     <span className="px-1.5 py-0.5 bg-green-50 text-green-700 text-[9px] font-bold rounded-[2px] border border-green-100">W: {u.totalWin || 0}</span>
-                     <span className="px-1.5 py-0.5 bg-red-50 text-red-700 text-[9px] font-bold rounded-[2px] border border-red-100">L: {u.totalLoss || 0}</span>
-                   </div>
-                </td>
-                <td className="px-6 py-4 text-zinc-500 font-semibold text-xs tabular-nums">
-                  {new Date(u.createdAt).toLocaleDateString()}
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="flex justify-end gap-2">
-                    <button 
-                      onClick={() => toggleBlock(u._id, u.isBlocked)}
-                      className={`w-8 h-8 flex items-center justify-center rounded-[4px] transition-all border ${u.isBlocked ? "bg-red-50 text-red-600 border-red-200" : "bg-white text-zinc-400 border-zinc-200 hover:bg-zinc-50 hover:text-black"}`}
-                      title={u.isBlocked ? "Unblock User" : "Block User"}
-                    >
-                      {u.isBlocked ? <ShieldAlert size={16} /> : <ShieldCheck size={16} />}
-                    </button>
-                    <button className="w-8 h-8 bg-white text-zinc-400 border border-zinc-200 hover:bg-black hover:text-white flex items-center justify-center rounded-[4px] transition-all">
-                      <Edit3 size={16} />
-                    </button>
-                  </div>
-                </td>
+        {/* DESKTOP TABLE */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-zinc-50 border-b border-zinc-200">
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">User / Mobile</th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">Balance</th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">Stats (W/L)</th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">Joined Date</th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500 text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-zinc-100">
+              {filteredUsers.map((u) => (
+                <tr key={u._id} className="hover:bg-zinc-50/50 transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-zinc-100 rounded-[4px] flex items-center justify-center font-bold text-[10px]">
+                        {u.mobile.slice(-2)}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-black tabular-nums">{u.mobile}</p>
+                        <p className="text-[9px] font-bold text-zinc-400 uppercase">UID: {u._id.slice(-8)}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 font-bold text-black text-sm tabular-nums">₹{u.balance.toLocaleString()}</td>
+                  <td className="px-6 py-4">
+                     <div className="flex gap-1.5">
+                       <span className="px-1.5 py-0.5 bg-green-50 text-green-700 text-[9px] font-bold rounded-[2px] border border-green-100">W: {u.totalWin || 0}</span>
+                       <span className="px-1.5 py-0.5 bg-red-50 text-red-700 text-[9px] font-bold rounded-[2px] border border-red-100">L: {u.totalLoss || 0}</span>
+                     </div>
+                  </td>
+                  <td className="px-6 py-4 text-zinc-500 font-semibold text-xs tabular-nums">
+                    {new Date(u.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      <button 
+                        onClick={() => toggleBlock(u._id, u.isBlocked)}
+                        className={`w-8 h-8 flex items-center justify-center rounded-[4px] transition-all border ${u.isBlocked ? "bg-red-50 text-red-600 border-red-200" : "bg-white text-zinc-400 border-zinc-200 hover:bg-zinc-50 hover:text-black"}`}
+                        title={u.isBlocked ? "Unblock User" : "Block User"}
+                      >
+                        {u.isBlocked ? <ShieldAlert size={16} /> : <ShieldCheck size={16} />}
+                      </button>
+                      <button className="w-8 h-8 bg-white text-zinc-400 border border-zinc-200 hover:bg-black hover:text-white flex items-center justify-center rounded-[4px] transition-all">
+                        <Edit3 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* MOBILE CARDS */}
+        <div className="md:hidden divide-y divide-zinc-100">
+          {filteredUsers.map((u) => (
+            <div key={u._id} className="p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-zinc-100 rounded-[4px] flex items-center justify-center font-bold text-xs">
+                    {u.mobile.slice(-2)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-black tabular-nums">{u.mobile}</p>
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase">UID: {u._id.slice(-8)}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-bold text-black tabular-nums">₹{u.balance.toLocaleString()}</p>
+                  <p className="text-[10px] font-bold text-zinc-400 uppercase">Balance</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between pt-2">
+                <div className="flex gap-2">
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-bold text-zinc-400 uppercase mb-1">Win/Loss</span>
+                    <div className="flex gap-1.5">
+                      <span className="px-1.5 py-0.5 bg-green-50 text-green-700 text-[9px] font-bold rounded-[2px] border border-green-100">W: {u.totalWin || 0}</span>
+                      <span className="px-1.5 py-0.5 bg-red-50 text-red-700 text-[9px] font-bold rounded-[2px] border border-red-100">L: {u.totalLoss || 0}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end">
+                  <span className="text-[9px] font-bold text-zinc-400 uppercase mb-1">Joined</span>
+                  <span className="text-xs font-semibold text-zinc-600 tabular-nums">{new Date(u.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button 
+                  onClick={() => toggleBlock(u._id, u.isBlocked)}
+                  className={`flex-1 h-10 flex items-center justify-center gap-2 rounded-[4px] font-bold text-[10px] uppercase tracking-wider transition-all border ${u.isBlocked ? "bg-red-50 text-red-600 border-red-200" : "bg-white text-zinc-600 border-zinc-200"}`}
+                >
+                  {u.isBlocked ? <ShieldAlert size={16} /> : <ShieldCheck size={16} />}
+                  {u.isBlocked ? "Unblock User" : "Block User"}
+                </button>
+                <button className="flex-1 h-10 bg-black text-white flex items-center justify-center gap-2 rounded-[4px] font-bold text-[10px] uppercase tracking-wider">
+                  <Edit3 size={16} />
+                  Edit
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
         {filteredUsers.length === 0 && (
           <div className="p-12 text-center text-zinc-400 font-bold uppercase text-[10px] tracking-widest bg-zinc-50/30">
             {loading ? <Loader2 className="animate-spin mx-auto h-5 w-5" /> : "No system users found"}

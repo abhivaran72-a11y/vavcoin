@@ -14,7 +14,7 @@ import { useSocket } from "./SocketProvider";
 export default function AdminV2Shell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [counts, setCounts] = useState({ deposits: 0, withdrawals: 0 });
   const { notifications, clearNotifications } = useSocket();
@@ -36,6 +36,11 @@ export default function AdminV2Shell({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     setMounted(true);
+    // On desktop, default to open
+    if (window.innerWidth >= 1024) {
+      setIsSidebarOpen(true);
+    }
+    
     if (!isAuthenticated()) {
       router.push("/admin-v2/login");
     } else {
@@ -64,8 +69,16 @@ export default function AdminV2Shell({ children }: { children: React.ReactNode }
 
   return (
     <div className="min-h-screen bg-zinc-50 text-black font-sans flex overflow-hidden isolate">
+      {/* MOBILE BACKDROP */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-[45] lg:hidden backdrop-blur-sm"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* SIDEBAR */}
-      <aside className={`fixed lg:relative z-50 h-screen bg-white border-r border-zinc-200 transition-all duration-300 flex flex-col ${isSidebarOpen ? "w-64" : "w-0 lg:w-16 overflow-hidden"}`}>
+      <aside className={`fixed lg:relative z-50 h-screen bg-white border-r border-zinc-200 transition-all duration-300 flex flex-col ${isSidebarOpen ? "w-64 translate-x-0" : "w-64 -translate-x-full lg:translate-x-0 lg:w-16 overflow-hidden"}`}>
         <div className="p-6 border-b border-zinc-100 flex items-center justify-between">
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="w-8 h-8 bg-black rounded-[4px] flex items-center justify-center shrink-0">
@@ -73,6 +86,12 @@ export default function AdminV2Shell({ children }: { children: React.ReactNode }
             </div>
             <span className={`font-bold text-lg tracking-tight ${!isSidebarOpen && "lg:hidden"}`}>VAVCOIN</span>
           </div>
+          <button 
+            onClick={() => setIsSidebarOpen(false)}
+            className="p-2 hover:bg-zinc-100 rounded-[4px] lg:hidden"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-6 no-scrollbar">
@@ -81,6 +100,9 @@ export default function AdminV2Shell({ children }: { children: React.ReactNode }
               <li key={item.href}>
                 <Link 
                   href={item.href}
+                  onClick={() => {
+                    if (window.innerWidth < 1024) setIsSidebarOpen(false);
+                  }}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-[4px] transition-colors group relative ${pathname === item.href ? "bg-zinc-100 text-black font-bold" : "text-zinc-500 hover:bg-zinc-50 hover:text-black"}`}
                 >
                   <item.icon size={18} className={pathname === item.href ? "text-black" : "text-zinc-400 group-hover:text-black"} />
@@ -110,20 +132,23 @@ export default function AdminV2Shell({ children }: { children: React.ReactNode }
       {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative isolate">
         {/* TOP HEADER */}
-        <header className="h-16 bg-white border-b border-zinc-200 flex items-center justify-between px-6 shrink-0 relative z-40">
+        <header className="h-16 bg-white border-b border-zinc-200 flex items-center justify-between px-4 lg:px-6 shrink-0 relative z-40">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 hover:bg-zinc-100 rounded-[4px] transition-colors lg:hidden"
+              className="p-2 hover:bg-zinc-100 rounded-[4px] transition-colors"
             >
               <Menu size={20} />
             </button>
-            <h2 className="font-bold text-sm uppercase tracking-widest text-zinc-400 hidden sm:block">
+            <h2 className="font-bold text-sm uppercase tracking-widest text-zinc-400 hidden lg:block">
+              {navItems.find(i => i.href === pathname)?.label || "Management"}
+            </h2>
+            <h2 className="font-bold text-sm uppercase tracking-widest text-black lg:hidden truncate max-w-[150px]">
               {navItems.find(i => i.href === pathname)?.label || "Management"}
             </h2>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 lg:gap-4">
             <div className="relative group">
                <button className="p-2 hover:bg-zinc-100 rounded-[4px] transition-colors relative">
                   <Bell size={20} className="text-zinc-500" />
@@ -131,7 +156,7 @@ export default function AdminV2Shell({ children }: { children: React.ReactNode }
                </button>
                
                {/* NOTIFICATION DROPDOWN */}
-               <div className="absolute right-0 mt-2 w-80 bg-white border border-zinc-200 shadow-lg rounded-[4px] overflow-hidden z-50 hidden group-hover:block">
+               <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white border border-zinc-200 shadow-lg rounded-[4px] overflow-hidden z-50 hidden group-hover:block">
                   <div className="p-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50">
                      <span className="font-bold text-[10px] uppercase tracking-widest">Recent Activity</span>
                      <button onClick={clearNotifications} className="text-[10px] font-bold text-blue-600 hover:underline">Clear</button>
@@ -151,10 +176,10 @@ export default function AdminV2Shell({ children }: { children: React.ReactNode }
                </div>
             </div>
 
-            <div className="h-8 w-[1px] bg-zinc-200 mx-2 hidden sm:block" />
+            <div className="h-8 w-[1px] bg-zinc-200 mx-1 hidden sm:block" />
 
-            <div className="flex items-center gap-3">
-               <div className="text-right hidden sm:block">
+            <div className="flex items-center gap-2 lg:gap-3">
+               <div className="text-right hidden md:block">
                   <p className="text-xs font-bold text-black">Administrator</p>
                   <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">Level 4 Clearance</p>
                </div>
@@ -166,7 +191,7 @@ export default function AdminV2Shell({ children }: { children: React.ReactNode }
         </header>
 
         {/* CONTENT */}
-        <main className="flex-1 overflow-y-auto bg-zinc-50/30 p-6 lg:p-10 relative isolate">
+        <main className="flex-1 overflow-y-auto bg-zinc-50/30 p-4 lg:p-10 relative isolate">
           {children}
         </main>
       </div>

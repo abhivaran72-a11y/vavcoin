@@ -72,35 +72,35 @@ export default function ProfitCenter() {
   ];
 
   return (
-    <div className="space-y-8 max-w-[1200px] mx-auto pb-20">
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="space-y-6 lg:space-y-8 max-w-[1200px] mx-auto pb-20">
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         {profitCards.map(card => (
-          <div key={card.label} className={`p-6 rounded-[4px] border border-zinc-200 shadow-sm ${card.highlight ? "bg-black text-white" : "bg-white text-black"}`}>
-            <div className={`w-8 h-8 rounded-[4px] flex items-center justify-center mb-4 ${card.highlight ? "bg-yellow-400 text-black" : "bg-zinc-100 text-zinc-600"}`}>
+          <div key={card.label} className={`p-4 lg:p-6 rounded-[4px] border border-zinc-200 shadow-sm ${card.highlight ? "bg-black text-white" : "bg-white text-black"}`}>
+            <div className={`w-8 h-8 rounded-[4px] flex items-center justify-center mb-3 lg:mb-4 ${card.highlight ? "bg-yellow-400 text-black" : "bg-zinc-100 text-zinc-600"}`}>
               <card.icon size={16} />
             </div>
-            <p className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${card.highlight ? "text-zinc-400" : "text-zinc-500"}`}>{card.label}</p>
-            <h3 className="text-2xl font-bold mb-2 tabular-nums">₹{card.val.toLocaleString()}</h3>
-            <p className={`text-[9px] font-semibold uppercase ${card.highlight ? "text-zinc-500" : "text-zinc-400"}`}>{card.desc}</p>
+            <p className={`text-[9px] lg:text-[10px] font-bold uppercase tracking-wider mb-1 ${card.highlight ? "text-zinc-400" : "text-zinc-500"}`}>{card.label}</p>
+            <h3 className="text-lg lg:text-2xl font-bold mb-1 lg:mb-2 tabular-nums">₹{card.val.toLocaleString()}</h3>
+            <p className={`text-[8px] lg:text-[9px] font-semibold uppercase ${card.highlight ? "text-zinc-500" : "text-zinc-400"} line-clamp-1`}>{card.desc}</p>
           </div>
         ))}
       </section>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <section className="lg:col-span-7 bg-white rounded-[4px] p-8 border border-zinc-200 shadow-sm">
-          <div className="flex items-center justify-between mb-8">
-            <h4 className="text-sm font-bold text-black uppercase tracking-widest">Revenue Performance</h4>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+        <section className="lg:col-span-7 bg-white rounded-[4px] p-6 lg:p-8 border border-zinc-200 shadow-sm">
+          <div className="flex items-center justify-between mb-6 lg:mb-8">
+            <h4 className="text-xs lg:text-sm font-bold text-black uppercase tracking-widest">Revenue Performance</h4>
             <Calendar className="text-zinc-300" size={20} />
           </div>
-          <div className="space-y-6">
+          <div className="space-y-4 lg:space-y-6">
             {periodicProfit.map(item => (
-              <div key={item.label} className="flex items-center justify-between border-b border-zinc-50 pb-6 last:border-0 last:pb-0">
+              <div key={item.label} className="flex items-center justify-between border-b border-zinc-50 pb-4 lg:pb-6 last:border-0 last:pb-0">
                 <div>
                   <p className="text-xs font-bold text-black">{item.label}</p>
                   <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">Aggregate Profit</p>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className={`text-xl font-bold tabular-nums ${item.trend === "up" ? "text-emerald-600" : "text-red-600"}`}>
+                <div className="flex items-center gap-3 lg:gap-4">
+                  <span className={`text-lg lg:text-xl font-bold tabular-nums ${item.trend === "up" ? "text-emerald-600" : "text-red-600"}`}>
                     ₹{item.val.toLocaleString()}
                   </span>
                   <div className={`w-8 h-8 rounded-[4px] flex items-center justify-center border ${item.trend === "up" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-red-50 text-red-600 border-red-100"}`}>
@@ -112,21 +112,21 @@ export default function ProfitCenter() {
           </div>
         </section>
 
-        <section className="lg:col-span-5 bg-zinc-50 rounded-[4px] p-8 border border-zinc-200 shadow-sm">
-           <div className="flex items-center gap-3 mb-8 border-b border-zinc-200 pb-4">
-             <div className="w-10 h-10 bg-black rounded-[4px] flex items-center justify-center text-white"><BarChart3 size={20} /></div>
-             <h4 className="text-sm font-bold text-black uppercase tracking-widest">Commission<br/>Breakdown</h4>
+        <section className="lg:col-span-5 bg-zinc-50 rounded-[4px] p-6 lg:p-8 border border-zinc-200 shadow-sm">
+           <div className="flex items-center gap-3 mb-6 lg:mb-8 border-b border-zinc-200 pb-4">
+             <div className="w-10 h-10 bg-black rounded-[4px] flex items-center justify-center text-white shrink-0"><BarChart3 size={20} /></div>
+             <h4 className="text-xs lg:text-sm font-bold text-black uppercase tracking-widest">Commission<br/>Breakdown</h4>
            </div>
-           <div className="space-y-4">
+           <div className="space-y-3 lg:space-y-4">
               {[
                 { label: "Today", val: stats.commissions?.today || 0 },
                 { label: "Weekly", val: stats.commissions?.weekly || 0 },
                 { label: "Monthly", val: stats.commissions?.monthly || 0 },
                 { label: "Lifetime", val: stats.commissions?.lifetime || 0 },
               ].map(row => (
-                <div key={row.label} className="bg-white p-4 rounded-[4px] border border-zinc-200 flex items-center justify-between group hover:border-yellow-500 transition-colors">
-                  <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{row.label}</span>
-                  <span className="text-lg font-bold text-black tabular-nums">₹{row.val.toLocaleString()}</span>
+                <div key={row.label} className="bg-white p-3 lg:p-4 rounded-[4px] border border-zinc-200 flex items-center justify-between group hover:border-yellow-500 transition-colors">
+                  <span className="text-[9px] lg:text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{row.label}</span>
+                  <span className="text-base lg:text-lg font-bold text-black tabular-nums">₹{row.val.toLocaleString()}</span>
                 </div>
               ))}
            </div>

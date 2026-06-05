@@ -65,7 +65,7 @@ export default function DepositsManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="relative w-full max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={16} />
           <input 
@@ -78,75 +78,133 @@ export default function DepositsManagement() {
         </div>
         <button 
           onClick={fetchDeposits}
-          className="h-10 px-6 bg-black text-white rounded-[4px] text-sm font-bold flex items-center gap-2"
+          className="w-full sm:w-auto h-10 px-6 bg-black text-white rounded-[4px] text-sm font-bold flex items-center justify-center gap-2"
         >
           {loading ? <Loader2 className="animate-spin" size={16} /> : "Refresh Deposits"}
         </button>
       </div>
 
       <div className="bg-white rounded-[4px] border border-zinc-200 overflow-hidden shadow-sm">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-zinc-50 border-b border-zinc-200">
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">User / Mobile</th>
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">Amount</th>
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">UTR / Reference</th>
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">Status</th>
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-100">
-            {filtered.map((d) => (
-              <tr key={d._id} className="hover:bg-zinc-50/50 transition-colors">
-                <td className="px-6 py-4">
+        {/* DESKTOP TABLE */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-zinc-50 border-b border-zinc-200">
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">User / Mobile</th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">Amount</th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">UTR / Reference</th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">Status</th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-100">
+              {filtered.map((d) => (
+                <tr key={d._id} className="hover:bg-zinc-50/50 transition-colors">
+                  <td className="px-6 py-4">
+                    <p className="text-sm font-bold text-black tabular-nums">{d.userId?.mobile}</p>
+                    <p className="text-[9px] font-bold text-zinc-400 uppercase">UID: {d.userId?._id.slice(-8)}</p>
+                  </td>
+                  <td className="px-6 py-4 font-bold text-black text-sm tabular-nums">₹{d.amount.toLocaleString()}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <p className="font-mono text-[10px] font-bold bg-zinc-100 px-2 py-0.5 rounded-[2px] text-zinc-600 tabular-nums">{d.utr}</p>
+                      <button 
+                        onClick={() => setSelectedImage(d.screenshot)}
+                        className="p-1.5 bg-yellow-50 text-yellow-600 rounded-[2px] hover:bg-yellow-100 transition-colors border border-yellow-100"
+                      >
+                        <Eye size={14} />
+                      </button>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-0.5 rounded-[2px] text-[9px] font-bold uppercase tracking-wider border ${
+                      d.status === "APPROVED" ? "bg-green-50 text-green-700 border-green-100" :
+                      d.status === "REJECTED" ? "bg-red-50 text-red-700 border-red-100" :
+                      "bg-orange-50 text-orange-700 border-orange-100"
+                    }`}>
+                      {d.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    {d.status === "PENDING" ? (
+                      <div className="flex justify-end gap-2">
+                        <button 
+                          onClick={() => handleAction(d._id, "APPROVED")}
+                          className="h-8 px-3 bg-black text-white rounded-[4px] text-[10px] font-bold flex items-center gap-1.5 transition-all"
+                        >
+                          <Check size={14} /> Approve
+                        </button>
+                        <button 
+                          onClick={() => handleAction(d._id, "REJECTED")}
+                          className="h-8 px-3 bg-white text-red-600 border border-red-200 rounded-[4px] text-[10px] font-bold flex items-center gap-1.5 transition-all hover:bg-red-50"
+                        >
+                          <X size={14} /> Reject
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-[9px] font-bold text-zinc-300 uppercase italic">Archived</p>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* MOBILE CARDS */}
+        <div className="md:hidden divide-y divide-zinc-100">
+          {filtered.map((d) => (
+            <div key={d._id} className="p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
                   <p className="text-sm font-bold text-black tabular-nums">{d.userId?.mobile}</p>
-                  <p className="text-[9px] font-bold text-zinc-400 uppercase">UID: {d.userId?._id.slice(-8)}</p>
-                </td>
-                <td className="px-6 py-4 font-bold text-black text-sm tabular-nums">₹{d.amount.toLocaleString()}</td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <p className="font-mono text-[10px] font-bold bg-zinc-100 px-2 py-0.5 rounded-[2px] text-zinc-600 tabular-nums">{d.utr}</p>
-                    <button 
-                      onClick={() => setSelectedImage(d.screenshot)}
-                      className="p-1.5 bg-yellow-50 text-yellow-600 rounded-[2px] hover:bg-yellow-100 transition-colors border border-yellow-100"
-                    >
-                      <Eye size={14} />
-                    </button>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-0.5 rounded-[2px] text-[9px] font-bold uppercase tracking-wider border ${
+                  <p className="text-[10px] font-bold text-zinc-400 uppercase">UID: {d.userId?._id.slice(-8)}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-black tabular-nums">₹{d.amount.toLocaleString()}</p>
+                  <span className={`px-2 py-0.5 rounded-[2px] text-[8px] font-bold uppercase tracking-wider border ${
                     d.status === "APPROVED" ? "bg-green-50 text-green-700 border-green-100" :
                     d.status === "REJECTED" ? "bg-red-50 text-red-700 border-red-100" :
                     "bg-orange-50 text-orange-700 border-orange-100"
                   }`}>
                     {d.status}
                   </span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  {d.status === "PENDING" ? (
-                    <div className="flex justify-end gap-2">
-                      <button 
-                        onClick={() => handleAction(d._id, "APPROVED")}
-                        className="h-8 px-3 bg-black text-white rounded-[4px] text-[10px] font-bold flex items-center gap-1.5 transition-all"
-                      >
-                        <Check size={14} /> Approve
-                      </button>
-                      <button 
-                        onClick={() => handleAction(d._id, "REJECTED")}
-                        className="h-8 px-3 bg-white text-red-600 border border-red-200 rounded-[4px] text-[10px] font-bold flex items-center gap-1.5 transition-all hover:bg-red-50"
-                      >
-                        <X size={14} /> Reject
-                      </button>
-                    </div>
-                  ) : (
-                    <p className="text-[9px] font-bold text-zinc-300 uppercase italic">Archived</p>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              </div>
+
+              <div className="p-3 bg-zinc-50 rounded-[4px] border border-zinc-100 flex items-center justify-between">
+                <div>
+                  <p className="text-[9px] font-bold text-zinc-400 uppercase mb-1">UTR Reference</p>
+                  <p className="font-mono text-xs font-bold text-zinc-600 tabular-nums">{d.utr}</p>
+                </div>
+                <button 
+                  onClick={() => setSelectedImage(d.screenshot)}
+                  className="h-10 px-4 bg-yellow-50 text-yellow-600 rounded-[4px] border border-yellow-200 flex items-center gap-2 text-[10px] font-bold uppercase"
+                >
+                  <Eye size={16} /> Proof
+                </button>
+              </div>
+
+              {d.status === "PENDING" && (
+                <div className="flex gap-2 pt-2">
+                  <button 
+                    onClick={() => handleAction(d._id, "APPROVED")}
+                    className="flex-1 h-10 bg-black text-white rounded-[4px] text-[10px] font-bold flex items-center justify-center gap-2 uppercase tracking-wider"
+                  >
+                    <Check size={16} /> Approve
+                  </button>
+                  <button 
+                    onClick={() => handleAction(d._id, "REJECTED")}
+                    className="flex-1 h-10 bg-white text-red-600 border border-red-200 rounded-[4px] text-[10px] font-bold flex items-center justify-center gap-2 uppercase tracking-wider"
+                  >
+                    <X size={16} /> Reject
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
         {filtered.length === 0 && (
           <div className="p-12 text-center text-zinc-400 font-bold uppercase text-[10px] tracking-widest bg-zinc-50/30">
             {loading ? <Loader2 className="animate-spin mx-auto h-5 w-5" /> : "No deposit requests found"}
@@ -157,17 +215,17 @@ export default function DepositsManagement() {
       {/* LIGHTBOX */}
       {selectedImage && (
         <div 
-          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-6"
+          className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-4 lg:p-10"
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative max-w-3xl w-full flex flex-col items-center">
+          <div className="relative w-full max-w-2xl">
             <img 
               src={selectedImage} 
               alt="Payment Proof" 
-              className="max-h-[85vh] w-auto object-contain rounded-[4px] border border-white/20 shadow-2xl" 
+              className="max-h-[70vh] lg:max-h-[85vh] w-auto mx-auto object-contain rounded-[4px] shadow-2xl" 
             />
             <button 
-              className="mt-6 px-6 py-2.5 bg-white text-black rounded-[4px] text-xs font-bold uppercase tracking-widest hover:bg-zinc-200 transition-all"
+              className="w-full mt-6 h-12 bg-white text-black rounded-[4px] text-xs font-bold uppercase tracking-widest"
               onClick={() => setSelectedImage(null)}
             >
               Close Preview
