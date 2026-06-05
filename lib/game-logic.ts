@@ -118,7 +118,7 @@ async function resolveRound(round: any) {
   for (const bet of bets) {
     if (bet.choice === result) {
       const commission = settings?.commissionPercentage || 1;
-      const winAmount = bet.amount * 2 * (1 - (commission / 100)); // Dynamic platform fee
+      const winAmount = bet.amount + (bet.amount * (1 - (commission / 100))); // Principal + (Profit - Commission)
 
       await Bet.updateOne(
         { _id: bet._id },
